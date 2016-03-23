@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+browserify src/okay.js -o dist/okay.js
