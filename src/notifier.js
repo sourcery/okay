@@ -18,7 +18,7 @@ Notifier.prototype.update = function() {
 
   for (var name in this.emittedData) {
     if (this.config[name]) {
-      this.watcher(this.target, this.config[name], this.emittedData[name]);
+      this.watcher(this.target, this.config[name], this.emittedData[name], this.config[name]);
     }
   }
 };
