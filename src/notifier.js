@@ -1,3 +1,5 @@
+var each = require('./each');
+
 function Notifier(name, watcher, target, emittedData) {
   this.name = name;
   this.watcher = watcher;
@@ -14,13 +16,24 @@ Notifier.prototype.getConfig = function() {
 };
 
 Notifier.prototype.update = function() {
-  if (!this.config) return;
+  var emittedData = this.emittedData;
+  var config = this.config;
+  var watcher = this.watcher;
+  var target = this.target;
+  if (!config) return;
 
-  for (var name in this.emittedData) {
-    if (this.config[name]) {
-      this.watcher(this.target, this.config[name], this.emittedData[name], this.config[name]);
-    }
-  }
+  each(config, function(configValue, configKey) {
+    var watcherValue;
+
+    each(configKey.split(','), function(match) {
+      each(emittedData, function(dataValue, dataKey) {
+        if (watcherValue) return;
+        if (match == dataKey) watcherValue = dataValue;
+      });
+    });
+
+    if (watcherValue != undefined) watcher(target, config[configKey], watcherValue, config);
+  });
 };
 
 Notifier.dispatch = function(watcherName, watcher, emittedData) {

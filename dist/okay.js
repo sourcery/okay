@@ -1,12 +1,16 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var emit = require('./emit');
-var transforms = require('./transforms');
-
-function eachTransform(callback) {
-  for (var i in transforms) {
-    callback(i, transforms[i]);
+function each(collection, callback) {
+  for (var i in collection) {
+    callback(collection[i], i);
   }
 };
+
+module.exports = each;
+
+},{}],2:[function(require,module,exports){
+var emit = require('./emit');
+var each = require('./each');
+var transforms = require('./transforms');
 
 function EmissionContext(target, data) {
   this.target = target;
@@ -22,21 +26,21 @@ EmissionContext.prototype.context = function() {
   target = this.target;
   context = {};
 
-  for (var i in data) {
-    eachTransform(function(transformName, transform) {
-      if (data[i] == transformName) {
-        context[i] = transform(target)
+  each(data, function(dataValue, dataKey) {
+    each(transforms, function(transform, transformName) {
+      if (dataValue == transformName) {
+        context[dataKey] = transform(target, dataKey, context);
       }
     });
 
-    if (context[i] == undefined) context[i] = data[i];
-  }
+    if (context[dataKey] == undefined) context[dataKey] = data[dataKey];
+  });
 
   return context;
 };
 
 module.exports = EmissionContext;
-},{"./emit":2,"./transforms":5}],2:[function(require,module,exports){
+},{"./each":1,"./emit":3,"./transforms":6}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
 var watchers = require('./watchers');
 
@@ -52,7 +56,9 @@ module.exports = function emit(emittedData) {
   });
 };
 
-},{"./notifier":3,"./watchers":6}],3:[function(require,module,exports){
+},{"./notifier":4,"./watchers":7}],4:[function(require,module,exports){
+var each = require('./each');
+
 function Notifier(name, watcher, target, emittedData) {
   this.name = name;
   this.watcher = watcher;
@@ -69,13 +75,24 @@ Notifier.prototype.getConfig = function() {
 };
 
 Notifier.prototype.update = function() {
-  if (!this.config) return;
+  var emittedData = this.emittedData;
+  var config = this.config;
+  var watcher = this.watcher;
+  var target = this.target;
+  if (!config) return;
 
-  for (var name in this.emittedData) {
-    if (this.config[name]) {
-      this.watcher(this.target, this.config[name], this.emittedData[name], this.config[name]);
-    }
-  }
+  each(config, function(configValue, configKey) {
+    var watcherValue;
+
+    each(configKey.split(','), function(match) {
+      each(emittedData, function(dataValue, dataKey) {
+        if (watcherValue) return;
+        if (match == dataKey) watcherValue = dataValue;
+      });
+    });
+
+    if (watcherValue != undefined) watcher(target, config[configKey], watcherValue, config);
+  });
 };
 
 Notifier.dispatch = function(watcherName, watcher, emittedData) {
@@ -88,7 +105,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
 };
 
 module.exports = Notifier;
-},{}],4:[function(require,module,exports){
+},{"./each":1}],5:[function(require,module,exports){
 (function() {
   'use strict';
   var Okay, EmissionContext;
@@ -105,7 +122,7 @@ module.exports = Notifier;
   });
 }());
 
-},{"./emission_context":1,"./emit":2}],5:[function(require,module,exports){
+},{"./emission_context":2,"./emit":3}],6:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
@@ -116,8 +133,28 @@ transforms['![checked]'] = function(target) {
   return !target.checked;
 };
 
+
+transforms['[options]'] = function(target, contextKey, context) {
+  var selectedOptionValue;
+  var options = target.children;
+
+  function updateContextForOption(option) {
+    var selected, name;
+    selected = option.selected == true;
+    name = option.getAttribute('name');
+    context[contextKey+'['+name+']'] = selected;
+    if (selected) selectedOptionValue = name;
+  }
+
+  for (var i = 0, ii = options.length; i < ii; i++) {
+    updateContextForOption(options[i]);
+  }
+
+  return selectedOptionValue;
+};
+
 module.exports = transforms;
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 exports.class = function applyClass(target, name, value) {
   target.classList.toggle(name, value);
 };
@@ -137,4 +174,4 @@ exports.html = function applyAttr(target, name, value, config) {
   }
 };
 
-},{}]},{},[4]);
+},{}]},{},[5]);

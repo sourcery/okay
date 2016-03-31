@@ -1,11 +1,6 @@
 var emit = require('./emit');
+var each = require('./each');
 var transforms = require('./transforms');
-
-function eachTransform(callback) {
-  for (var i in transforms) {
-    callback(i, transforms[i]);
-  }
-};
 
 function EmissionContext(target, data) {
   this.target = target;
@@ -21,15 +16,15 @@ EmissionContext.prototype.context = function() {
   target = this.target;
   context = {};
 
-  for (var i in data) {
-    eachTransform(function(transformName, transform) {
-      if (data[i] == transformName) {
-        context[i] = transform(target)
+  each(data, function(dataValue, dataKey) {
+    each(transforms, function(transform, transformName) {
+      if (dataValue == transformName) {
+        context[dataKey] = transform(target, dataKey, context);
       }
     });
 
-    if (context[i] == undefined) context[i] = data[i];
-  }
+    if (context[dataKey] == undefined) context[dataKey] = data[dataKey];
+  });
 
   return context;
 };
