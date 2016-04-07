@@ -2,32 +2,37 @@ var Notifier = require('../src/notifier');
 var assert = require('assert');
 
 describe('Notifier', function() {
+  function fakeHTMLElement() {
+    return { getAttribute: function() { return JSON.stringify(watchData); }};
+  }
+
+  var watchData = {
+    "entree[null],entree[fries]": "hidden"
+  };
+
+  var assertWatcherSetHidden = function(notifier, bool) {
+    var calls = notifier.watcherCalls();
+    assert.equals(calls.length, 1);
+    assert.equals(calls[0].hidden, bool);
+  };
+
   function buildNotifier(name, watchData, emittedData) {
-    var watcherCalled = false;
     var watcherCalls = [];
 
-    var watcher = function() {
-      watcherCalls.push([ this, arguments ]);
-      watcherCalled = true;
+    var watcher = function(target, name, value, context) {
+      data = {};
+      data[name] = value;
+      watcherCalls.push(data);
     };
 
-    var target = {
-      getAttribute: function() {
-        return JSON.stringify(watchData);
-      }
-    };
+    var target = fakeHTMLElement();
     notifier = new Notifier('class', watcher, target, emittedData);
     notifier.watcherCalled = function() { return watcherCalled; };
     notifier.watcherCalls = function() { return watcherCalls; };
-
-    return notifier
+    return notifier;
   }
 
   it('hides when entree is null', function() {
-    var watchData = {
-      "entree[null],entree[fries]": "hidden"
-    };
-
     var emittedData = {
       "entree[null]": true,
       "entree[burgers]": false,
@@ -37,19 +42,11 @@ describe('Notifier', function() {
     };
 
     var notifier = buildNotifier('class', watchData, emittedData);
-
     notifier.update();
-    assert.equal(notifier.watcherCalled(), true);
-    assert.equal(notifier.watcherCalls().length, 1);
-    assert.equal(notifier.watcherCalls()[0][1][1], 'hidden');
-    assert.equal(notifier.watcherCalls()[0][1][2], true);
+    assertWatcherSetHidden(notifier, true);
   });
 
   it('hides when entree is fries', function() {
-    var watchData = {
-      "entree[null],entree[fries]": "hidden"
-    };
-
     var emittedData = {
       "entree[null]": false,
       "entree[burgers]": false,
@@ -59,19 +56,11 @@ describe('Notifier', function() {
     };
 
     var notifier = buildNotifier('class', watchData, emittedData);
-
     notifier.update();
-    assert.equal(notifier.watcherCalled(), true);
-    assert.equal(notifier.watcherCalls().length, 1);
-    assert.equal(notifier.watcherCalls()[0][1][1], 'hidden');
-    assert.equal(notifier.watcherCalls()[0][1][2], true);
+    assertWatcherSetHidden(notifier, true);
   });
 
   it('shows when entree is burgers', function() {
-    var watchData = {
-      "entree[null],entree[fries]": "hidden"
-    };
-
     var emittedData = {
       "entree[null]": false,
       "entree[burgers]": true,
@@ -81,19 +70,11 @@ describe('Notifier', function() {
     };
 
     var notifier = buildNotifier('class', watchData, emittedData);
-
     notifier.update();
-    assert.equal(notifier.watcherCalled(), true);
-    assert.equal(notifier.watcherCalls().length, 1);
-    assert.equal(notifier.watcherCalls()[0][1][1], 'hidden');
-    assert.equal(notifier.watcherCalls()[0][1][2], false);
+    assertWatcherSetHidden(notifier, false);
   });
 
   it('shows when entree is cheese', function() {
-    var watchData = {
-      "entree[null],entree[fries]": "hidden"
-    };
-
     var emittedData = {
       "entree[null]": false,
       "entree[burgers]": false,
@@ -103,11 +84,7 @@ describe('Notifier', function() {
     };
 
     var notifier = buildNotifier('class', watchData, emittedData);
-
     notifier.update();
-    assert.equal(notifier.watcherCalled(), true);
-    assert.equal(notifier.watcherCalls().length, 1);
-    assert.equal(notifier.watcherCalls()[0][1][1], 'hidden');
-    assert.equal(notifier.watcherCalls()[0][1][2], false);
+    assertWatcherSetHidden(notifier, false);
   });
 });

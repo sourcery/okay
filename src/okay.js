@@ -7,9 +7,11 @@
 
   window.addEventListener('change', function(e) {
     var emissionData;
-    emissionData = JSON.parse(e.target.dataset.emit);
-    var emissionContext = new EmissionContext(e.target, emissionData);
-    var context = emissionContext.context();
-    Okay.emit(context);
+    if (e.target.dataset.emit) {
+      emissionData = JSON.parse(e.target.dataset.emit);
+      var emissionContext = new EmissionContext(e.target, emissionData);
+      var context = emissionContext.context();
+      Okay.emit(context);
+    }
   });
 }());

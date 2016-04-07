@@ -115,10 +115,12 @@ module.exports = Notifier;
 
   window.addEventListener('change', function(e) {
     var emissionData;
-    emissionData = JSON.parse(e.target.dataset.emit);
-    var emissionContext = new EmissionContext(e.target, emissionData);
-    var context = emissionContext.context();
-    Okay.emit(context);
+    if (e.target.dataset.emit) {
+      emissionData = JSON.parse(e.target.dataset.emit);
+      var emissionContext = new EmissionContext(e.target, emissionData);
+      var context = emissionContext.context();
+      Okay.emit(context);
+    }
   });
 }());
 
@@ -155,19 +157,19 @@ transforms['[options]'] = function(target, contextKey, context) {
 
 module.exports = transforms;
 },{}],7:[function(require,module,exports){
-exports.class = function applyClass(target, name, value) {
-  target.classList.toggle(name, value);
+exports.class = function applyClass(target, className, value) {
+  target.classList.toggle(className, value);
 };
 
-exports.attr = function applyAttr(target, name, value) {
-  target.removeAttribute(name);
-  if (value) target.setAttribute(name, value);
+exports.attr = function applyAttr(target, attrName, value) {
+  target.removeAttribute(attrName);
+  if (value) target.setAttribute(attrName, value);
 };
 
-exports.html = function applyAttr(target, name, value, config) {
-  if (config == 'append()') {
+exports.html = function applyHTML(target, setting, value, config) {
+  if (setting == 'append()') {
     target.innerHTML = target.innerHTML + value;
-  } else if (config == 'prepend()') {
+  } else if (setting == 'prepend()') {
     target.innerHTML = value + target.innerHTML;
   } else {
     target.innerHTML = value;
