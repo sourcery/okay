@@ -5,7 +5,7 @@
   Okay.emit = require('./emit');
   EmissionContext = require('./emission_context');
 
-  window.addEventListener('change', function(e) {
+  var handler = function (e) {
     var emissionData;
     if (e.target && e.target.dataset.emit) {
       emissionData = JSON.parse(e.target.dataset.emit);
@@ -13,5 +13,8 @@
       var context = emissionContext.context();
       Okay.emit(context);
     }
-  });
+  };
+
+  window.addEventListener('change', handler);
+  window.addEventListener('click', handler);
 }());

@@ -1,6 +1,11 @@
 <html>
+  <head><title>Replace HTML in Element</title></head>
   <body>
-    <div id="watcher" data-watch-html='{"content":true}'>This div in its original state.</div>
+    <div id="example">
+      <div id="watcher" data-watch-html='{"htmlExample:content":true}'>This div in its original state.</div>
+      <hr/>
+      <button data-emit='{"htmlExample:content":" Replacement text."}' class="btn btn-info">Prepend</button>
+    </div>
     <script type="text/javascript" src="okay.js"></script>
   </body>
 </html>

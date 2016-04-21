@@ -1,24 +1,24 @@
 <html>
-  <head>
-    <title>Okay</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
-  </head>
+<head>
+  <title>Okay</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+</head>
 
-  <body>
-  <br/>
-    <div class="container">
-      <div class="jumbotron">
-        <h1>Okay</h1>
-        <p>An "A-Okay" way to enhance your browser application.</p>
-        <p><a href="http://github.com/sourcery/okay" class="btn btn-primary btn-large">Source</a></p>
-      </div>
+<body>
+<br/>
+<div class="container">
+  <div class="jumbotron">
+    <h1>Okay</h1>
+    <p>An "A-Okay" way to enhance your browser application.</p>
+    <p><a href="http://github.com/sourcery/okay" class="btn btn-primary btn-large">Source</a></p>
+  </div>
 
-      <div class="row">
-        <div class="col-lg-12">
-          <h1 class="page-title">How it works</h1>
+  <div class="row">
+    <div class="col-lg-12">
+      <h1 class="page-title">How it works</h1>
 
-          <div class="lead">Okay Enhances HTML with data-attributes and JSON</div>
+      <div class="lead">Okay Enhances HTML with data-attributes and JSON</div>
 
           <pre class="hightlight">&lt;html&gt;
   &lt;label for='amazing'&gt;
@@ -32,36 +32,210 @@
   &lt;script src='./path/to/okay.js'&gt;&lt;/script&gt;
 &lt;/html&gt;</pre>
 
-          <div class="panel panel-default">
-            <div class="panel-heading">Try it out!</div>
-            <div class="panel-body">
-              <label>
-                <input type='checkbox' data-emit='{"amazing": "[checked]"}'> Amazing
-              </label>
+      <div class="panel panel-default">
+        <div class="panel-heading">Try it out!</div>
+        <div class="panel-body">
+          <label>
+            <input type='checkbox' data-emit='{"amazing": "[checked]"}'> Amazing
+          </label>
 
-              <div data-watch-class='{"amazing":"hidden"}'>
-                What isn't amazing? <a href="http://americanmaverick.forsale" target="_BLANK">Let me know!</a>
-              </div>
-            </div>
+          <div data-watch-class='{"amazing":"hidden"}'>
+            What isn't amazing? <a href="http://americanmaverick.forsale" target="_BLANK">Let me know!</a>
           </div>
-
-          <div>
-            Made by
-            <a href="http://getsourcery.com">
-              <img src="sourcery-logo.png" width="90" style="position: relative; top: -2px;" />
-            </a>
-          </div>
-
-          <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
-          <script src='./dist/okay.js'></script>
-          <script type="text/javascript">
-            (function() {
-              var highlights = Array.prototype.slice.apply(document.querySelectorAll('.hightlight'));
-              highlights.forEach(function(hightlight) { hljs.highlightBlock(hightlight); });
-            })();
-          </script>
         </div>
       </div>
+      <hr/>
+      <br/>
+
+      <h1 class="page-title">More examples</h1>
+      
+        <div class="lead">Set an HTML Class on an Element</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div id=&quot;watcher&quot; data-watch-class=&#39;{&quot;classExample:hidden&quot;: &quot;hidden&quot;}&#39;&gt;The div is not hidden.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;button data-emit=&#39;{&quot;classExample:hidden&quot;:true}&#39; class=&quot;btn btn-info&quot;&gt;Hide the DIV&lt;/button&gt;
+  &lt;button data-emit=&#39;{&quot;classExample:hidden&quot;:false}&#39; class=&quot;btn btn-info&quot;&gt;Show the DIV&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div id="watcher" data-watch-class='{"classExample:hidden": "hidden"}'>The div is not hidden.</div>
+  <hr>
+  <button data-emit='{"classExample:hidden":true}' class="btn btn-info">Hide the DIV</button>
+  <button data-emit='{"classExample:hidden":false}' class="btn btn-info">Show the DIV</button>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Set HTML Attribute</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div id=&quot;watcher&quot; data-watch-attr=&#39;{&quot;info&quot;:&quot;title&quot;}&#39;&gt;This div has no title.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;button data-emit=&#39;{&quot;info&quot;:&quot;The text in this div is now a lie.&quot;}&#39; class=&quot;btn btn-info&quot;&gt;Set title&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div id="watcher" data-watch-attr='{"info":"title"}'>This div has no title.</div>
+  <hr>
+  <button data-emit='{"info":"The text in this div is now a lie."}' class="btn btn-info">Set title</button>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Replace HTML in Element</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div id=&quot;watcher&quot; data-watch-html=&#39;{&quot;htmlExample:content&quot;:true}&#39;&gt;This div in its original state.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;button data-emit=&#39;{&quot;htmlExample:content&quot;:&quot; Replacement text.&quot;}&#39; class=&quot;btn btn-info&quot;&gt;Prepend&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div id="watcher" data-watch-html='{"htmlExample:content":true}'>This div in its original state.</div>
+  <hr>
+  <button data-emit='{"htmlExample:content":" Replacement text."}' class="btn btn-info">Prepend</button>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Append HTML to Element</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div id=&quot;watcher&quot; data-watch-html=&#39;{&quot;appendExample:content&quot;:&quot;append()&quot;}&#39;&gt;This div in its original state.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;button data-emit=&#39;{&quot;appendExample:content&quot;:&quot; Appended text.&quot;}&#39; class=&quot;btn btn-info&quot;&gt;Prepend&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div id="watcher" data-watch-html='{"appendExample:content":"append()"}'>This div in its original state.</div>
+  <hr>
+  <button data-emit='{"appendExample:content":" Appended text."}' class="btn btn-info">Prepend</button>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Prepend HTML to Element</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div id=&quot;watcher&quot; data-watch-html=&#39;{&quot;prependExample:content&quot;:&quot;prepend()&quot;}&#39;&gt;This div in its original state.&lt;/div&gt;
+  &lt;hr&gt;
+  &lt;button data-emit=&#39;{&quot;prependExample:content&quot;:&quot; Prepended text.&quot;}&#39; class=&quot;btn btn-info&quot;&gt;Prepend&lt;/button&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div id="watcher" data-watch-html='{"prependExample:content":"prepend()"}'>This div in its original state.</div>
+  <hr>
+  <button data-emit='{"prependExample:content":" Prepended text."}' class="btn btn-info">Prepend</button>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Check and Uncheck Checkbox</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div&gt;
+    &lt;input type=&quot;checkbox&quot; id=&quot;emitter&quot; data-emit=&#39;{&quot;active&quot;: &quot;[checked]&quot;, &quot;inactive&quot;: &quot;![checked]&quot;}&#39;&gt;
+    &lt;label for=&quot;emitter&quot;&gt;Hide&lt;/label&gt;
+  &lt;/div&gt;
+   &lt;div&gt;
+    &lt;label for=&quot;field&quot;&gt;Reason&lt;/label&gt;
+    &lt;input type=&quot;text&quot; id=&quot;field&quot; data-watch-attr=&#39;{&quot;active&quot;:&quot;disabled&quot;}&#39;&gt;
+  &lt;/div&gt;
+   &lt;div data-watch-class=&#39;{&quot;active&quot;: &quot;hidden&quot;}&#39;&gt;Hidden if checked&lt;/div&gt;
+  &lt;div class=&quot;hidden&quot; data-watch-class=&#39;{&quot;inactive&quot;: &quot;hidden&quot;}&#39;&gt;Hidden if unchecked&lt;/div&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div>
+    <input type="checkbox" id="emitter" data-emit='{"active": "[checked]", "inactive": "![checked]"}'>
+    <label for="emitter">Hide</label>
+  </div>
+   <div>
+    <label for="field">Reason</label>
+    <input type="text" id="field" data-watch-attr='{"active":"disabled"}'>
+  </div>
+   <div data-watch-class='{"active": "hidden"}'>Hidden if checked</div>
+  <div class="hidden" data-watch-class='{"inactive": "hidden"}'>Hidden if unchecked</div>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Use HTML Select Element Options to Manipulate DOM</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;label for=&quot;entree&quot;&gt;Entree&lt;/label&gt;
+  &lt;select data-emit=&#39;{&quot;entree&quot;:&quot;[options]&quot;}&#39; id=&quot;entree&quot;&gt;
+    &lt;option&gt;-- Choose --&lt;/option&gt;
+    &lt;option name=&quot;burger&quot;&gt;Hamburger&lt;/option&gt;
+    &lt;option name=&quot;cheese&quot;&gt;Grilled Cheese&lt;/option&gt;
+    &lt;option name=&quot;fries&quot;&gt;Fries Only&lt;/option&gt;
+  &lt;/select&gt;
+   &lt;div class=&quot;hidden&quot; data-watch-class=&#39;{&quot;entree[fries],entree[null]&quot;: &quot;hidden&quot;}&#39;&gt;
+    &lt;input type=&quot;checkbox&quot; name=&quot;fries&quot; id=&quot;fries&quot; data-watch-attr=&#39;{&quot;entree[fries],entree[null]&quot;: &quot;disabled&quot;}&#39; disabled&gt;
+    &lt;label for=&quot;fries&quot;&gt;Would you like fries with that?&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <label for="entree">Entree</label>
+  <select data-emit='{"entree":"[options]"}' id="entree">
+    <option>-- Choose --</option>
+    <option name="burger">Hamburger</option>
+    <option name="cheese">Grilled Cheese</option>
+    <option name="fries">Fries Only</option>
+  </select>
+   <div class="hidden" data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
+    <input type="checkbox" name="fries" id="fries" data-watch-attr='{"entree[fries],entree[null]": "disabled"}' disabled>
+    <label for="fries">Would you like fries with that?</label>
+  </div>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+
+      <div>
+        Made by
+        <a href="http://getsourcery.com">
+          <img src="sourcery-logo.png" width="90" style="position: relative; top: -2px;" />
+        </a>
+      </div>
+
+      <br/>
+      <br/>
+      <br/>
+
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+      <script src='./dist/okay.js'></script>
+      <script type="text/javascript">
+          (function() {
+              var highlights = Array.prototype.slice.apply(document.querySelectorAll('.hightlight'));
+              highlights.forEach(function(hightlight) { hljs.highlightBlock(hightlight); });
+          })();
+      </script>
     </div>
-  </body>
+  </div>
+</div>
+</body>
 </html>

@@ -1,11 +1,17 @@
 <html>
   <head>
+    <title>Set an HTML Class on an Element</title>
     <style>
       .hidden { display: none; }
     </style>
   </head>
   <body>
-    <div id="watcher" data-watch-class='{"hidden": "hidden"}'>The div is not hidden.</div>
+    <div id="example">
+      <div id="watcher" data-watch-class='{"classExample:hidden": "hidden"}'>The div is not hidden.</div>
+      <hr/>
+      <button data-emit='{"classExample:hidden":true}' class="btn btn-info">Hide the DIV</button>
+      <button data-emit='{"classExample:hidden":false}' class="btn btn-info">Show the DIV</button>
+    </div>
     <script type="text/javascript" src="okay.js"></script>
   </body>
 </html>

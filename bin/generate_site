@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'irb'
+require 'pathname'
+require 'nokogiri'
+require 'tilt'
+
+
+class TemplateData
+  ORDER = [
+    'class.html',
+    'attr.html',
+    'html.html',
+    'append-html.html',
+    'prepend-html.html',
+    'check-uncheck.html',
+    'select.html',
+  ]
+
+  def examples
+    Dir.glob('./lib/okay/test/sinatra/public/**/*').each_with_object([]) do |file, object|
+      pathname = Pathname(file)
+      document = Nokogiri::HTML(Pathname(file).read)
+      title = document.css('title').text
+      example_html = document.css('#example').to_s
+      indent = example_html.match(/^\s+/).to_a.first
+      object << [ title, example_html.gsub(/^\s{4}/, ''), pathname.basename.to_s ]
+    end.sort_by do |example|
+      ORDER.index(example[2])
+    end
+  end
+end
+
+@data = TemplateData.new
+@template = Tilt::ERBTemplate.new(Pathname('./site/index.erb').to_s)
+html = @template.render(@data)
+Pathname('./index.html').write(html)

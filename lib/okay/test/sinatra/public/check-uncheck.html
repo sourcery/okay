@@ -1,22 +1,26 @@
 <html>
   <head>
+    <title>Check and Uncheck Checkbox</title>
+
     <style>
       .hidden { display: none; }
     </style>
   </head>
   <body>
-    <div>
-      <input type="checkbox" id="emitter" data-emit='{"active": "[checked]", "inactive": "![checked]"}' />
-      <label for="emitter">Hide</label>
-    </div>
+    <div id="example">
+      <div>
+        <input type="checkbox" id="emitter" data-emit='{"active": "[checked]", "inactive": "![checked]"}' />
+        <label for="emitter">Hide</label>
+      </div>
 
-    <div>
-      <label for="field">Reason</label>
-      <input type="text" id="field" data-watch-attr='{"active":"disabled"}' />
-    </div>
+      <div>
+        <label for="field">Reason</label>
+        <input type="text" id="field" data-watch-attr='{"active":"disabled"}' />
+      </div>
 
-    <div data-watch-class='{"active": "hidden"}'>Hidden if checked</div>
-    <div class="hidden" data-watch-class='{"inactive": "hidden"}'>Hidden if unchecked</div>
+      <div data-watch-class='{"active": "hidden"}'>Hidden if checked</div>
+      <div class="hidden" data-watch-class='{"inactive": "hidden"}'>Hidden if unchecked</div>
+    </div>
     <script type="text/javascript" src="okay.js"></script>
   </body>
 </html>

@@ -1,21 +1,24 @@
 <html>
   <head>
+    <title>Use HTML Select Element Options to Manipulate DOM</title>
     <style>
       .hidden { display: none; }
     </style>
   </head>
   <body>
-    <label for="entree">Entree</label>
-    <select data-emit='{"entree":"[options]"}' id="entree">
-      <option>-- Choose --</option>
-      <option name="burger">Hamburger</option>
-      <option name="cheese">Grilled Cheese</option>
-      <option name="fries">Fries Only</option>
-    </select>
+    <div id="example">
+      <label for="entree">Entree</label>
+      <select data-emit='{"entree":"[options]"}' id="entree">
+        <option>-- Choose --</option>
+        <option name="burger">Hamburger</option>
+        <option name="cheese">Grilled Cheese</option>
+        <option name="fries">Fries Only</option>
+      </select>
 
-    <div class='hidden' data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
-      <input type="checkbox" name="fries" id="fries" data-watch-attr='{"entree[fries],entree[null]": "disabled"}' disabled='disabled'/>
-      <label for="fries">Would you like fries with that?</label>
+      <div class='hidden' data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
+        <input type="checkbox" name="fries" id="fries" data-watch-attr='{"entree[fries],entree[null]": "disabled"}' disabled='disabled'/>
+        <label for="fries">Would you like fries with that?</label>
+      </div>
     </div>
 
     <script type="text/javascript" src="okay.js"></script>

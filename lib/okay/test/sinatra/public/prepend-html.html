@@ -1,6 +1,11 @@
 <html>
+  <head><title>Prepend HTML to Element</title></head>
   <body>
-    <div id="watcher" data-watch-html='{"content":"prepend()"}'>This div in its original state.</div>
+    <div id="example">
+      <div id="watcher" data-watch-html='{"prependExample:content":"prepend()"}'>This div in its original state.</div>
+      <hr/>
+      <button data-emit='{"prependExample:content":" Prepended text."}' class="btn btn-info">Prepend</button>
+    </div>
     <script type="text/javascript" src="okay.js"></script>
   </body>
 </html>
