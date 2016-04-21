@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <title>Okay</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css">
+  </head>
+
+  <body>
+  <br/>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Okay</h1>
+        <p>An "A-Okay" way to enhance your browser application.</p>
+        <div>
+          <a href="http://github.com/sourcery/okay" class="btn btn-primary btn-large">Source</a>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 class="page-title">How it works</h1>
+
+          <div class="lead">Okay Enhances HTML with data-attributes and JSON</div>
+
+          <pre class="hightlight">&lt;html&gt;
+  &lt;label for='amazing'&gt;
+    &lt;input type='checkbox' data-emit='{"amazing": "[checked]"}'&gt; Amazing
+  &lt;/label&gt;
+
+  &lt;div data-watch-class='{"amazing":"hidden"}'&gt;
+    Why isn't this amazing? &lt;a href="mailto:bennyjbergstein@gmail.com"&gt;Let me know!&lt;/a&gt;
+  &lt;/div&gt;
+
+  &lt;script src='./path/to/okay.js'&gt;&lt;/script&gt;
+&lt;/html&gt;</pre>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">Try it out!</div>
+            <div class="panel-body">
+              <label>
+                <input type='checkbox' data-emit='{"amazing": "[checked]"}'> Amazing
+              </label>
+
+              <div data-watch-class='{"amazing":"hidden"}'>
+                Why isn't this amazing? <a href="http://americanmaverick.forsale" target="_BLANK">Let me know!</a>
+              </div>
+            </div>
+          </div>
+          <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js"></script>
+          <script src='./dist/okay.js'></script>
+          <script type="text/javascript">
+            (function() {
+              var highlights = Array.prototype.slice.apply(document.querySelectorAll('.hightlight'));
+              highlights.forEach(function(hightlight) { hljs.highlightBlock(hightlight); });
+            })();
+          </script>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

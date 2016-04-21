@@ -43,20 +43,15 @@ module.exports = EmissionContext;
 },{"./each":1,"./emit":3,"./transforms":6}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
 var watchers = require('./watchers');
-
-function eachWatcher(callback) {
-  for (var watcherName in watchers) {
-    callback.call(this, watcherName, watchers[watcherName]);
-  }
-}
+var each = require('./each');
 
 module.exports = function emit(emittedData) {
-  eachWatcher(function(watcherName, watcher) {
+  each(watchers, function(watcher, watcherName) {
     Notifier.dispatch(watcherName, watcher, emittedData);
   });
 };
 
-},{"./notifier":4,"./watchers":7}],4:[function(require,module,exports){
+},{"./each":1,"./notifier":4,"./watchers":7}],4:[function(require,module,exports){
 var each = require('./each');
 
 function Notifier(name, watcher, target, emittedData) {
@@ -115,7 +110,7 @@ module.exports = Notifier;
 
   window.addEventListener('change', function(e) {
     var emissionData;
-    if (e.target.dataset.emit) {
+    if (e.target && e.target.dataset.emit) {
       emissionData = JSON.parse(e.target.dataset.emit);
       var emissionContext = new EmissionContext(e.target, emissionData);
       var context = emissionContext.context();
@@ -134,7 +129,6 @@ transforms['[checked]'] = function(target) {
 transforms['![checked]'] = function(target) {
   return !target.checked;
 };
-
 
 transforms['[options]'] = function(target, contextKey, context) {
   var selectedOptionValue;
@@ -158,7 +152,8 @@ transforms['[options]'] = function(target, contextKey, context) {
 module.exports = transforms;
 },{}],7:[function(require,module,exports){
 exports.class = function applyClass(target, className, value) {
-  target.classList.toggle(className, value);
+  var method = value ? 'add' : 'remove';
+  target.classList[method](className, value);
 };
 
 exports.attr = function applyAttr(target, attrName, value) {

@@ -12,8 +12,8 @@ describe('Notifier', function() {
 
   var assertWatcherSetHidden = function(notifier, bool) {
     var calls = notifier.watcherCalls();
-    assert.equals(calls.length, 1);
-    assert.equals(calls[0].hidden, bool);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].hidden, bool);
   };
 
   function buildNotifier(name, watchData, emittedData) {

@@ -7,7 +7,7 @@
 
   window.addEventListener('change', function(e) {
     var emissionData;
-    if (e.target.dataset.emit) {
+    if (e.target && e.target.dataset.emit) {
       emissionData = JSON.parse(e.target.dataset.emit);
       var emissionContext = new EmissionContext(e.target, emissionData);
       var context = emissionContext.context();

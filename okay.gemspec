@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{An "A-Okay" way to enhance your browser application.}
   spec.description   = %q{Pub-Sub DOM Manipulation}
-  spec.homepage      = "http://www.getsourcery.com"
+  spec.homepage      = "http://github.com/sourcery/okay"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

@@ -8,7 +8,6 @@ transforms['![checked]'] = function(target) {
   return !target.checked;
 };
 
-
 transforms['[options]'] = function(target, contextKey, context) {
   var selectedOptionValue;
   var options = target.children;

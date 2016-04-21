@@ -1,5 +1,6 @@
 exports.class = function applyClass(target, className, value) {
-  target.classList.toggle(className, value);
+  var method = value ? 'add' : 'remove';
+  target.classList[method](className, value);
 };
 
 exports.attr = function applyAttr(target, attrName, value) {

@@ -1,7 +1,29 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 IFS=$'\n\t'
 
 bundle install
 
-# Do any other automated setup that you need to do here
+which node >> /dev/null
+if [ $? != 0 ]; then
+  echo ""
+  echo -e "\033[0;33mYou must install node to set up Okay\033[0m"
+  exit
+fi
+
+which npm >> /dev/null
+if [ $? != 0 ]; then
+  echo -e "\033[0;33mYou must install npm to set up Okay\033[0m"
+  exit
+fi
+
+which browserify >> /dev/null
+if [ $? != 0 ]; then
+  npm install -g browserify
+fi
+
+which mocha >> /dev/null
+if [ $? != 0 ]; then
+  npm install -g mocha
+fi
+
