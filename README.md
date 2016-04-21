@@ -2,7 +2,7 @@
 
 Okay Enhances HTML with data-attributes and JSON
 
-Learn how to use it [here](http://sourcery.github.io/okay), or check out [the sample app](tree/master/lib/okay/test/sinatra)
+Learn how to use it [here](http://sourcery.github.io/okay), or check out [the sample app](lib/okay/test/sinatra)
 
 ## Installation
 
@@ -35,7 +35,7 @@ Run the sample app server:
 
 ## Usage
 
-Learn how to use it [here](http://sourcery.github.io/okay), or check out [the sample app](tree/master/lib/okay/test/sinatra)
+Learn how to use it [here](http://sourcery.github.io/okay), or check out [the sample app](lib/okay/test/sinatra)
 
 ## Development
 
