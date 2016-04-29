@@ -20,6 +20,7 @@ Notifier.prototype.update = function() {
   var config = this.config;
   var watcher = this.watcher;
   var target = this.target;
+  var event;
   if (!config) return;
 
   each(config, function(configValue, configKey) {
@@ -40,8 +41,20 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
   var targets, i, ii;
 
   targets = document.querySelectorAll('[data-watch-'+watcherName+']');
+
   for (i = 0, ii = targets.length; i < ii; i++) {
-    new Notifier(watcherName, watcher, targets[i], emittedData).update();
+    (function() {
+      var currentTarget;
+      var notify;
+
+      currentTarget = targets[i];
+      var notify = function () {
+        new Notifier(watcherName, watcher, currentTarget, emittedData).update();
+      };
+
+      // Let stack clear.
+      setTimeout(notify);
+    }());
   }
 };
 

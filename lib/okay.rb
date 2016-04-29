@@ -1,5 +1,5 @@
 require "okay/version"
+require "okay/engine"
 
 module Okay
-  # Your code goes here...
 end

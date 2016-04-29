@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
 browserify src/okay.js -o dist/okay.js
+cp dist/okay.js vendor/assets/javascripts

@@ -5,6 +5,13 @@ exports.class = function applyClass(target, className, value) {
 
 exports.attr = function applyAttr(target, attrName, value) {
   target.removeAttribute(attrName);
+
+  if (attrName == 'checked') {
+    target.checked = value;
+    event = new Event('change', { bubbles: true, cancelable: true });
+    target.dispatchEvent(event);
+  }
+
   if (value) target.setAttribute(attrName, value);
 };
 
