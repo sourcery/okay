@@ -15,6 +15,7 @@ class TemplateData
     'prepend-html.html',
     'check-uncheck.html',
     'select.html',
+    'click-link.html'
   ]
 
   def examples
