@@ -1,16 +1,14 @@
 exports.class = function applyClass(target, className, value) {
-  var method = value ? 'add' : 'remove';
-  target.classList[method](className, value);
+  $(target).toggleClass(className, value);
 };
 
 exports.attr = function applyAttr(target, attrName, value) {
-  target.removeAttribute(attrName);
-  if (value) target.setAttribute(attrName, value);
+  $(target).removeProp(attrName);
+  if (value) $(target).prop(attrName, value);
 
   if (attrName == 'checked') {
     target.checked = value;
-    var event = new Event('change', { bubbles: true, cancelable: false });
-    target.dispatchEvent(event);
+    setTimeout(function () { $(target).trigger('change'); });
   }
 };
 

@@ -5,8 +5,18 @@ module Okay
   module Test
     module Sinatra
       class Application < ::Sinatra::Base
+        helpers do
+          def dist(resource)
+            send_file Pathname(File.dirname(__FILE__)).join('..', '..', '..', '..', 'dist', "#{resource}.js").open
+          end
+        end
+
         get '/okay.js' do
-          send_file Pathname(File.dirname(__FILE__)).join('..', '..', '..', '..', 'dist', 'okay.js').open
+          dist('okay')
+        end
+
+        get '/okay-jquery.js' do
+          dist('okay-jquery')
         end
       end
     end

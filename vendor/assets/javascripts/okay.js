@@ -40,18 +40,35 @@ EmissionContext.prototype.context = function() {
 };
 
 module.exports = EmissionContext;
-},{"./each":1,"./emit":3,"./transforms":6}],3:[function(require,module,exports){
+},{"./each":1,"./emit":3,"./transforms":7}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
-var watchers = require('./watchers');
 var each = require('./each');
 
-module.exports = function emit(emittedData) {
+module.exports = function emit(emittedData, watchers) {
   each(watchers, function(watcher, watcherName) {
     Notifier.dispatch(watcherName, watcher, emittedData);
   });
 };
 
-},{"./each":1,"./notifier":4,"./watchers":7}],4:[function(require,module,exports){
+},{"./each":1,"./notifier":5}],4:[function(require,module,exports){
+var log = [];
+
+log.logEvent = function(e) {
+  var logEntry;
+  logEntry= [ e.type, e.toString() ];
+  logEntry.push([ e.target.tagName, e.target.id, e.target.textContent ]);
+
+  var data;
+  try {
+    data = JSON.parse(e.target.dataset.emit || e.currentTarget.dataset.emit);
+    logEntry.push(data);
+  } catch (e) {}
+
+  log.push(logEntry);
+};
+
+module.exports = log;
+},{}],5:[function(require,module,exports){
 var each = require('./each');
 
 function Notifier(name, watcher, target, emittedData) {
@@ -74,7 +91,6 @@ Notifier.prototype.update = function() {
   var config = this.config;
   var watcher = this.watcher;
   var target = this.target;
-  var event;
   if (!config) return;
 
   each(config, function(configValue, configKey) {
@@ -95,7 +111,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
   var targets, i, ii;
 
   targets = document.querySelectorAll('[data-watch-'+watcherName+']');
-  
+
   for (i = 0, ii = targets.length; i < ii; i++) {
     (function() {
       var currentTarget;
@@ -106,36 +122,63 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
         new Notifier(watcherName, watcher, currentTarget, emittedData).update();
       };
 
-      // Let stack clear.
+       //Let stack clear.
       setTimeout(notify);
     }());
   }
 };
 
 module.exports = Notifier;
-},{"./each":1}],5:[function(require,module,exports){
+},{"./each":1}],6:[function(require,module,exports){
 (function() {
   'use strict';
-  var Okay, EmissionContext;
+  var Okay, EmissionContext, listener;
   window.Okay = Okay = {};
+  if (!Okay) Okay = {};
+
   Okay.emit = require('./emit');
+  Okay.watchers = require('./watchers');
+  Okay.log = require('./log');
   EmissionContext = require('./emission_context');
 
-  var handler = function (e) {
+  Okay.eventListener = listener = function (e) {var elementInfo = [];
+    var emissionJSON;
     var emissionData;
-    if (e.target && e.target.dataset.emit) {
-      emissionData = JSON.parse(e.target.dataset.emit);
+    Okay.log.logEvent(e);
+
+    function hasDataset(target) {
+      return target && target.dataset && target.dataset.emit;
+    }
+
+    if (hasDataset(e.target)) emissionJSON = e.target.dataset.emit;
+    else if (hasDataset(e.currentTarget)) emissionJSON = e.target.dataset.emit;
+
+    if (emissionJSON) {
+      emissionData = JSON.parse(emissionJSON);
       var emissionContext = new EmissionContext(e.target, emissionData);
       var context = emissionContext.context();
-      Okay.emit(context);
+      Okay.emit(context, Okay.watchers);
     }
   };
 
-  window.addEventListener('change', handler);
-  window.addEventListener('click', handler);
+  Okay.setEventListeners = function() {
+    window.addEventListener('change', listener);
+    window.addEventListener('click', listener);
+    document.addEventListener('change', listener);
+    document.addEventListener('click', listener);
+  };
+
+  Okay.clearEventListeners = function() {
+    window.removeEventListener('change', listener);
+    window.removeEventListener('click', listener);
+    document.removeEventListener('change', listener);
+    document.removeEventListener('click', listener);
+  };
+
+  Okay.setEventListeners();
 }());
 
-},{"./emission_context":2,"./emit":3}],6:[function(require,module,exports){
+},{"./emission_context":2,"./emit":3,"./log":4,"./watchers":8}],7:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
@@ -166,7 +209,7 @@ transforms['[options]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 exports.class = function applyClass(target, className, value) {
   var method = value ? 'add' : 'remove';
   target.classList[method](className, value);
@@ -174,14 +217,13 @@ exports.class = function applyClass(target, className, value) {
 
 exports.attr = function applyAttr(target, attrName, value) {
   target.removeAttribute(attrName);
+  if (value) target.setAttribute(attrName, value);
 
   if (attrName == 'checked') {
     target.checked = value;
-    event = new Event('change', { bubbles: true, cancelable: true });
+    var event = new Event('change', { bubbles: true, cancelable: false });
     target.dispatchEvent(event);
   }
-
-  if (value) target.setAttribute(attrName, value);
 };
 
 exports.html = function applyHTML(target, setting, value, config) {
@@ -194,4 +236,4 @@ exports.html = function applyHTML(target, setting, value, config) {
   }
 };
 
-},{}]},{},[5]);
+},{}]},{},[6]);

@@ -20,13 +20,14 @@ describe('emit', function() {
 
     fakeHtml = 'fake html';
     fakeClass = 'fake class';
-    emit.__set__('watchers', {
+
+    var watchers = {
       html: fakeHtml,
       class: fakeClass
-    });
+    };
 
     data = { booger: 'stein' };
-    emit(data);
+    emit(data, watchers);
 
     assert.equal(dispatches[1][0], 'class');
     assert.equal(dispatches[1][1], 'fake class');

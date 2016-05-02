@@ -20,7 +20,6 @@ Notifier.prototype.update = function() {
   var config = this.config;
   var watcher = this.watcher;
   var target = this.target;
-  var event;
   if (!config) return;
 
   each(config, function(configValue, configKey) {
@@ -52,7 +51,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
         new Notifier(watcherName, watcher, currentTarget, emittedData).update();
       };
 
-      // Let stack clear.
+       //Let stack clear.
       setTimeout(notify);
     }());
   }
