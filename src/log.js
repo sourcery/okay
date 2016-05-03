@@ -2,7 +2,7 @@ var log = [];
 
 log.logEvent = function(e) {
   var logEntry;
-  logEntry= [ e.type, e.toString() ];
+  logEntry= [ 'event', e.type, e.toString() ];
   logEntry.push([ e.target.tagName, e.target.id, e.target.textContent ]);
 
   var data;
@@ -12,6 +12,21 @@ log.logEvent = function(e) {
   } catch (e) {}
 
   log.push(logEntry);
+};
+
+log.logState = function(data, stack, updateState) {
+  var logEntry, started, ended, error;
+
+  started = +new Date();
+  try {
+    updateState();
+  } catch (e) { error = e; }
+  ended = +new Date();
+
+  logEntry= [ 'state', data, ended - started, stack, error ];
+  log.push(logEntry);
+
+  if (error) throw error;
 };
 
 module.exports = log;

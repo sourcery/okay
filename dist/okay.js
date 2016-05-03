@@ -55,7 +55,7 @@ var log = [];
 
 log.logEvent = function(e) {
   var logEntry;
-  logEntry= [ e.type, e.toString() ];
+  logEntry= [ 'event', e.type, e.toString() ];
   logEntry.push([ e.target.tagName, e.target.id, e.target.textContent ]);
 
   var data;
@@ -65,6 +65,21 @@ log.logEvent = function(e) {
   } catch (e) {}
 
   log.push(logEntry);
+};
+
+log.logState = function(data, stack, updateState) {
+  var logEntry, started, ended, error;
+
+  started = +new Date();
+  try {
+    updateState();
+  } catch (e) { error = e; }
+  ended = +new Date();
+
+  logEntry= [ 'state', data, ended - started, stack, error ];
+  log.push(logEntry);
+
+  if (error) throw error;
 };
 
 module.exports = log;
@@ -132,26 +147,55 @@ module.exports = Notifier;
 },{"./each":1}],6:[function(require,module,exports){
 (function() {
   'use strict';
-  var Okay, EmissionContext, listener;
+  var Okay, EmissionContext, listener, stack;
+
   window.Okay = Okay = {};
   if (!Okay) Okay = {};
 
+  var each = require('./each');
   Okay.emit = require('./emit');
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
   EmissionContext = require('./emission_context');
+  //
+  //Okay.stack = stack = [];
+  //
+  //setInterval(function() {
+  //  var itemsToClear = Array.prototype.slice.apply(stack);
+  //  var computedState = {};
+  //  stack = [];
+  //
+  //  if (itemsToClear.length == 0) return;
+  //
+  //  each(itemsToClear, function(item) {
+  //    each(item, function(val, key) {
+  //      computedState[key] = val;
+  //    });
+  //  });
+  //
+  //  Okay.log.logState(computedState, itemsToClear, function() {
+  //    Okay.emit(computedState, Okay.watchers);
+  //  });
+  //}, 300);
 
   Okay.eventListener = listener = function (e) {var elementInfo = [];
     var emissionJSON;
     var emissionData;
+    var possibleTargets;
+
     Okay.log.logEvent(e);
+
+    possibleTargets = e.path ? Array.prototype.slice.apply(e.path) : [];
+    if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
+    possibleTargets.unshift(e.target);
 
     function hasDataset(target) {
       return target && target.dataset && target.dataset.emit;
     }
 
-    if (hasDataset(e.target)) emissionJSON = e.target.dataset.emit;
-    else if (hasDataset(e.currentTarget)) emissionJSON = e.target.dataset.emit;
+    each(possibleTargets, function(target) {
+      if (!emissionJSON && hasDataset(target)) emissionJSON = target.dataset.emit;
+    });
 
     if (emissionJSON) {
       emissionData = JSON.parse(emissionJSON);
@@ -178,7 +222,7 @@ module.exports = Notifier;
   Okay.setEventListeners();
 }());
 
-},{"./emission_context":2,"./emit":3,"./log":4,"./watchers":8}],7:[function(require,module,exports){
+},{"./each":1,"./emission_context":2,"./emit":3,"./log":4,"./watchers":8}],7:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
