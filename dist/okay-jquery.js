@@ -23,7 +23,7 @@ module.exports = each;
   Okay.jQuery.use = function () {
     originalWatchers = {};
 
-    each([ 'attr', 'class', 'html' ], function(watcher) {
+    each([ 'html', 'attr', 'class' ], function(watcher) {
       originalWatchers[watcher] = Okay.watchers[watcher];
       Okay.watchers[watcher] = jqueryWatchers[watcher];
     });
@@ -47,6 +47,16 @@ module.exports = each;
 }());
 
 },{"./each":1,"./watchers-jquery":3}],3:[function(require,module,exports){
+exports.html = function applyHTML(target, setting, value, config) {
+  if (setting == 'append()') {
+    target.innerHTML = target.innerHTML + value;
+  } else if (setting == 'prepend()') {
+    target.innerHTML = value + target.innerHTML;
+  } else {
+    target.innerHTML = value;
+  }
+};
+
 exports.class = function applyClass(target, className, value) {
   $(target).toggleClass(className, value);
 };
@@ -58,16 +68,6 @@ exports.attr = function applyAttr(target, attrName, value) {
   if (attrName == 'checked') {
     target.checked = value;
     setTimeout(function () { $(target).trigger('change'); });
-  }
-};
-
-exports.html = function applyHTML(target, setting, value, config) {
-  if (setting == 'append()') {
-    target.innerHTML = target.innerHTML + value;
-  } else if (setting == 'prepend()') {
-    target.innerHTML = value + target.innerHTML;
-  } else {
-    target.innerHTML = value;
   }
 };
 

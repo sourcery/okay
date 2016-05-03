@@ -13,7 +13,7 @@
   Okay.jQuery.use = function () {
     originalWatchers = {};
 
-    each([ 'attr', 'class', 'html' ], function(watcher) {
+    each([ 'html', 'attr', 'class' ], function(watcher) {
       originalWatchers[watcher] = Okay.watchers[watcher];
       Okay.watchers[watcher] = jqueryWatchers[watcher];
     });

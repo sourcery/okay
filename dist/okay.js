@@ -40,7 +40,7 @@ EmissionContext.prototype.context = function() {
 };
 
 module.exports = EmissionContext;
-},{"./each":1,"./emit":3,"./transforms":7}],3:[function(require,module,exports){
+},{"./each":1,"./emit":3,"./transforms":8}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
 var each = require('./each');
 
@@ -52,22 +52,51 @@ module.exports = function emit(emittedData, watchers) {
 
 },{"./each":1,"./notifier":5}],4:[function(require,module,exports){
 var log = [];
+var log = [];
+
+log.DEBUG = false;
 
 log.logEvent = function(e) {
   var logEntry;
-  logEntry= [ e.type, e.toString() ];
-  logEntry.push([ e.target.tagName, e.target.id, e.target.textContent ]);
-
   var data;
-  try {
-    data = JSON.parse(e.target.dataset.emit || e.currentTarget.dataset.emit);
-    logEntry.push(data);
-  } catch (e) {}
 
-  log.push(logEntry);
+  if (log.DEBUG) {
+    logEntry = ['event', e.type, e.toString()];
+    logEntry.push([e.target.tagName, e.target.id, e.target.textContent]);
+
+    try {
+      data = JSON.parse(e.target.dataset.emit || e.currentTarget.dataset.emit);
+      logEntry.push(data);
+    } catch (e) {
+    }
+
+    log.push(logEntry);
+  }
+};
+
+log.logState = function(data, stack, updateState) {
+  var logEntry, started, ended, error;
+
+  if (log.DEBUG) {
+    started = +new Date();
+    try {
+      updateState();
+    } catch (e) {
+      error = e;
+    }
+    ended = +new Date();
+
+    logEntry = ['state', data, ended - started, stack, error];
+    log.push(logEntry);
+
+    if (error) throw error;
+  } else {
+    updateState();
+  }
 };
 
 module.exports = log;
+
 },{}],5:[function(require,module,exports){
 var each = require('./each');
 
@@ -132,32 +161,43 @@ module.exports = Notifier;
 },{"./each":1}],6:[function(require,module,exports){
 (function() {
   'use strict';
-  var Okay, EmissionContext, listener;
+  var Okay, EmissionContext, listener, stack;
+
   window.Okay = Okay = {};
   if (!Okay) Okay = {};
 
+  var each = require('./each');
+  var Timer = require('./timer');
   Okay.emit = require('./emit');
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
+  Okay.timer = new Timer(Okay);
   EmissionContext = require('./emission_context');
 
   Okay.eventListener = listener = function (e) {var elementInfo = [];
     var emissionJSON;
     var emissionData;
+    var possibleTargets;
+
     Okay.log.logEvent(e);
+
+    possibleTargets = e.path ? Array.prototype.slice.apply(e.path) : [];
+    if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
+    possibleTargets.unshift(e.target);
 
     function hasDataset(target) {
       return target && target.dataset && target.dataset.emit;
     }
 
-    if (hasDataset(e.target)) emissionJSON = e.target.dataset.emit;
-    else if (hasDataset(e.currentTarget)) emissionJSON = e.target.dataset.emit;
+    each(possibleTargets, function(target) {
+      if (!emissionJSON && hasDataset(target)) emissionJSON = target.dataset.emit;
+    });
 
     if (emissionJSON) {
       emissionData = JSON.parse(emissionJSON);
       var emissionContext = new EmissionContext(e.target, emissionData);
       var context = emissionContext.context();
-      Okay.emit(context, Okay.watchers);
+      Okay.timer.push(context);
     }
   };
 
@@ -176,9 +216,53 @@ module.exports = Notifier;
   };
 
   Okay.setEventListeners();
+  Okay.timer.start();
 }());
 
-},{"./emission_context":2,"./emit":3,"./log":4,"./watchers":8}],7:[function(require,module,exports){
+},{"./each":1,"./emission_context":2,"./emit":3,"./log":4,"./timer":7,"./watchers":9}],7:[function(require,module,exports){
+var each = require('./each');
+
+function Timer(Okay) {
+  this.Okay = Okay;
+  this.stack = [];
+}
+
+Timer.prototype.start = function() {
+  var timer = this;
+  this.interval = window.setInterval(function () {
+    timer.clear();
+  }, 150);
+};
+
+Timer.prototype.stop = function() {
+  window.clearInterval(this.interval);
+};
+
+Timer.prototype.push = function(item) {
+  this.stack.push(item);
+};
+
+Timer.prototype.clear = function() {
+  var Okay = this.Okay;
+  var itemsToClear = Array.prototype.slice.apply(this.stack);
+  var computedState = {};
+  this.stack = [];
+
+  if (itemsToClear.length == 0) return;
+
+  each(itemsToClear, function(item) {
+    each(item, function(val, key) {
+      computedState[key] = val;
+    });
+  });
+
+  Okay.log.logState(computedState, itemsToClear, function() {
+    Okay.emit(computedState, Okay.watchers);
+  });
+};
+
+module.exports = Timer;
+},{"./each":1}],8:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
@@ -209,7 +293,17 @@ transforms['[options]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+exports.html = function applyHTML(target, setting, value, config) {
+  if (setting == 'append()') {
+    target.innerHTML = target.innerHTML + value;
+  } else if (setting == 'prepend()') {
+    target.innerHTML = value + target.innerHTML;
+  } else {
+    target.innerHTML = value;
+  }
+};
+
 exports.class = function applyClass(target, className, value) {
   var method = value ? 'add' : 'remove';
   target.classList[method](className, value);
@@ -223,16 +317,6 @@ exports.attr = function applyAttr(target, attrName, value) {
     target.checked = value;
     var event = new Event('change', { bubbles: true, cancelable: false });
     target.dispatchEvent(event);
-  }
-};
-
-exports.html = function applyHTML(target, setting, value, config) {
-  if (setting == 'append()') {
-    target.innerHTML = target.innerHTML + value;
-  } else if (setting == 'prepend()') {
-    target.innerHTML = value + target.innerHTML;
-  } else {
-    target.innerHTML = value;
   }
 };
 
