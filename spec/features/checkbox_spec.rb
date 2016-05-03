@@ -16,6 +16,7 @@ describe 'Checkboxes' do
   each_adapter do
     scenario 'check/uncheck' do
       visit '/check-uncheck.html'
+      wait_for_okay
       expect_unchecked_message
       check 'Hide'
       expect_checked_message

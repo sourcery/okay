@@ -1,5 +1,27 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
+step()
+{
+  echo "\033[0;33m$1\033[0m"
+}
+
+step "Building dist/okay.js..."
 browserify src/okay.js -o dist/okay.js
 browserify src/okay-jquery.js -o dist/okay-jquery.js
 cp dist/*.js vendor/assets/javascripts
+step "Done!"
+echo "\n"
+
+if [ "$1" == "test" ] || [ "$2" == "test" ]; then
+  step "Running the tests..."
+  rspec && mocha
+  step "Done!"
+  echo "\n"
+fi
+
+if [ "$1" == "site" ] || [ "$2" == "site" ]; then
+  step "Generating the site..."
+  generate_site
+  step "Done!"
+  echo "\n"
+fi

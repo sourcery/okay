@@ -34,3 +34,11 @@ def each_adapter(&block)
     end
   end
 end
+
+def wait_for_okay
+  wait_for(condition: 'okay to be available') { evaluate_script('typeof Okay') == 'object' }
+  wait_for(condition: 'okay to load') { evaluate_script('typeof Okay.emit') == 'function' }
+  wait_for(condition: 'okay jquery to load') { evaluate_script('typeof Okay.jQuery') == 'object' }
+
+  set_adapter
+end

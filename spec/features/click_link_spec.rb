@@ -4,6 +4,7 @@ describe 'Click link' do
   each_adapter do
     scenario 'Click span within a link' do
       visit 'click-link.html'
+      wait_for_okay
 
       # Click once to get the coordinates
       coordinates = click_on 'On'

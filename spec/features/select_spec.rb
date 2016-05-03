@@ -4,6 +4,8 @@ describe 'Select' do
   each_adapter do
     scenario 'Select different options' do
       visit '/select.html'
+      wait_for_okay
+
       select 'Hamburger', from: 'Entree'
       check 'Would you like fries with that?'
       select 'Fries Only', from: 'Entree'
