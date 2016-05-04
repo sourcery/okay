@@ -40,58 +40,64 @@ EmissionContext.prototype.context = function() {
 };
 
 module.exports = EmissionContext;
-},{"./each":1,"./emit":3,"./transforms":8}],3:[function(require,module,exports){
+},{"./each":1,"./emit":3,"./transforms":9}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
 var each = require('./each');
 
-module.exports = function emit(emittedData, watchers) {
+var callbacks = [];
+
+function emit(emittedData, watchers) {
+  var started, ended;
+
+  started = +new Date;
   each(watchers, function(watcher, watcherName) {
     Notifier.dispatch(watcherName, watcher, emittedData);
   });
+  ended = +new Date;
+
+  each(callbacks, function(callback) {
+    callback(emittedData, ended - started);
+  });
 };
 
+emit.onEmit = function(callback) {
+  callbacks.push(callback);
+};
+
+module.exports = emit;
+
 },{"./each":1,"./notifier":5}],4:[function(require,module,exports){
-var log = [];
 var log = [];
 
 log.DEBUG = false;
 
-log.logEvent = function(e) {
-  var logEntry;
-  var data;
+log.logEvent = function(e, data) {
+  var target;
 
   if (log.DEBUG) {
-    logEntry = ['event', e.type, e.toString()];
-    logEntry.push([e.target.tagName, e.target.id, e.target.textContent]);
+    target = e.target;
 
-    try {
-      data = JSON.parse(e.target.dataset.emit || e.currentTarget.dataset.emit);
-      logEntry.push(data);
-    } catch (e) {
-    }
-
-    log.push(logEntry);
+    return log.log('event', {
+      type: e.type,
+      class: e.toString(),
+      target: {
+        tag: target.tagName,
+        id: target.id,
+        text: target.textContent
+      },
+      emit: data
+    });
   }
 };
 
-log.logState = function(data, stack, updateState) {
-  var logEntry, started, ended, error;
+log.log = function(type, data) {
+  var entry;
 
   if (log.DEBUG) {
-    started = +new Date();
-    try {
-      updateState();
-    } catch (e) {
-      error = e;
-    }
-    ended = +new Date();
-
-    logEntry = ['state', data, ended - started, stack, error];
-    log.push(logEntry);
-
-    if (error) throw error;
-  } else {
-    updateState();
+    entry = [ type, data ];
+    
+    log.push(entry);
+    return entry;
   }
 };
 
@@ -167,21 +173,24 @@ module.exports = Notifier;
   if (!Okay) Okay = {};
 
   var each = require('./each');
+  var slice = require('./slice');
   var Timer = require('./timer');
   Okay.emit = require('./emit');
+
+  Okay.emit.onEmit(function(state, elapsed) {
+    Okay.log.log('state', { state: state, elapsed: elapsed });
+  });
+
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
   Okay.timer = new Timer(Okay);
+
   EmissionContext = require('./emission_context');
 
   Okay.eventListener = listener = function (e) {var elementInfo = [];
-    var emissionJSON;
-    var emissionData;
-    var possibleTargets;
+    var emissionJSON, emissionData, possibleTargets, emissionContext, context;
 
-    Okay.log.logEvent(e);
-
-    possibleTargets = e.path ? Array.prototype.slice.apply(e.path) : [];
+    possibleTargets = e.path ? slice(e.path) : [];
     if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
     possibleTargets.unshift(e.target);
 
@@ -195,9 +204,15 @@ module.exports = Notifier;
 
     if (emissionJSON) {
       emissionData = JSON.parse(emissionJSON);
-      var emissionContext = new EmissionContext(e.target, emissionData);
-      var context = emissionContext.context();
-      Okay.timer.push(context);
+      Okay.log.logEvent(e, emissionData);
+      emissionContext = new EmissionContext(e.target, emissionData);
+      context = emissionContext.context();
+
+      if (Okay.timer.running === true) {
+        Okay.timer.push(context);
+      } else {
+        Okay.emit(context, Okay.watchers);
+      }
     }
   };
 
@@ -219,23 +234,35 @@ module.exports = Notifier;
   Okay.timer.start();
 }());
 
-},{"./each":1,"./emission_context":2,"./emit":3,"./log":4,"./timer":7,"./watchers":9}],7:[function(require,module,exports){
-var each = require('./each');
+},{"./each":1,"./emission_context":2,"./emit":3,"./log":4,"./slice":7,"./timer":8,"./watchers":10}],7:[function(require,module,exports){
+var arrayPrototypeSlice = Array.prototype.slice;
 
-function Timer(Okay) {
+module.exports = function slice(object) {
+  return arrayPrototypeSlice.apply(object);
+};
+
+},{}],8:[function(require,module,exports){
+var each = require('./each');
+var slice = require('./slice');
+
+function Timer(Okay, clearEvery) {
   this.Okay = Okay;
   this.stack = [];
+  this.running = false;
+  this.clearEvery = clearEvery || 10;
 }
 
 Timer.prototype.start = function() {
   var timer = this;
-  this.interval = window.setInterval(function () {
-    timer.clear();
-  }, 150);
+
+  function clear() { timer.clear(); }
+  timer.interval = window.setInterval(clear, timer.clearEvery);
+  timer.running = true;
 };
 
 Timer.prototype.stop = function() {
   window.clearInterval(this.interval);
+  this.running = false;
 };
 
 Timer.prototype.push = function(item) {
@@ -244,25 +271,33 @@ Timer.prototype.push = function(item) {
 
 Timer.prototype.clear = function() {
   var Okay = this.Okay;
-  var itemsToClear = Array.prototype.slice.apply(this.stack);
-  var computedState = {};
-  this.stack = [];
+  var computedState;
 
-  if (itemsToClear.length == 0) return;
+  computedState = Timer.getStateForTimer(this);
+  if (computedState) Okay.emit(computedState, Okay.watchers);
+};
 
+Timer.getStateForTimer = function(timer) {
+  var itemsToClear, computedState;
+
+  itemsToClear = slice(timer.stack);
+  timer.stack = [];
+
+  if (itemsToClear.length == 0) return false;
+
+  computedState  = {};
   each(itemsToClear, function(item) {
     each(item, function(val, key) {
       computedState[key] = val;
     });
   });
 
-  Okay.log.logState(computedState, itemsToClear, function() {
-    Okay.emit(computedState, Okay.watchers);
-  });
+  return computedState;
 };
 
 module.exports = Timer;
-},{"./each":1}],8:[function(require,module,exports){
+
+},{"./each":1,"./slice":7}],9:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
@@ -293,7 +328,7 @@ transforms['[options]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
     target.innerHTML = target.innerHTML + value;

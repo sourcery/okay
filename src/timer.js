@@ -1,19 +1,24 @@
 var each = require('./each');
+var slice = require('./slice');
 
-function Timer(Okay) {
+function Timer(Okay, clearEvery) {
   this.Okay = Okay;
   this.stack = [];
+  this.running = false;
+  this.clearEvery = clearEvery || 10;
 }
 
 Timer.prototype.start = function() {
   var timer = this;
-  this.interval = window.setInterval(function () {
-    timer.clear();
-  }, 150);
+
+  function clear() { timer.clear(); }
+  timer.interval = window.setInterval(clear, timer.clearEvery);
+  timer.running = true;
 };
 
 Timer.prototype.stop = function() {
   window.clearInterval(this.interval);
+  this.running = false;
 };
 
 Timer.prototype.push = function(item) {
@@ -22,21 +27,28 @@ Timer.prototype.push = function(item) {
 
 Timer.prototype.clear = function() {
   var Okay = this.Okay;
-  var itemsToClear = Array.prototype.slice.apply(this.stack);
-  var computedState = {};
-  this.stack = [];
+  var computedState;
 
-  if (itemsToClear.length == 0) return;
+  computedState = Timer.getStateForTimer(this);
+  if (computedState) Okay.emit(computedState, Okay.watchers);
+};
 
+Timer.getStateForTimer = function(timer) {
+  var itemsToClear, computedState;
+
+  itemsToClear = slice(timer.stack);
+  timer.stack = [];
+
+  if (itemsToClear.length == 0) return false;
+
+  computedState  = {};
   each(itemsToClear, function(item) {
     each(item, function(val, key) {
       computedState[key] = val;
     });
   });
 
-  Okay.log.logState(computedState, itemsToClear, function() {
-    Okay.emit(computedState, Okay.watchers);
-  });
+  return computedState;
 };
 
 module.exports = Timer;

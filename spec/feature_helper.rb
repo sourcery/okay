@@ -24,13 +24,24 @@ end
 
 def set_adapter
   evaluate_script('Okay.jQuery.use();') if adapter == :jquery
+  evaluate_script('Okay.timer.stop();') unless timer
 end
 
 def each_adapter(&block)
   [ :no, :jquery ].each do |adapter|
     context "with #{adapter} adapter" do
       let(:adapter) { adapter }
-      instance_eval(&block)
+
+      context 'using the timer' do
+        let(:timer) { true }
+        instance_eval(&block)
+      end
+
+      context 'not using the timer' do
+        let(:timer) { false }
+        instance_eval(&block)
+      end
+
     end
   end
 end

@@ -1,44 +1,34 @@
 var log = [];
-var log = [];
 
 log.DEBUG = false;
 
-log.logEvent = function(e) {
-  var logEntry;
-  var data;
+log.logEvent = function(e, data) {
+  var target;
 
   if (log.DEBUG) {
-    logEntry = ['event', e.type, e.toString()];
-    logEntry.push([e.target.tagName, e.target.id, e.target.textContent]);
+    target = e.target;
 
-    try {
-      data = JSON.parse(e.target.dataset.emit || e.currentTarget.dataset.emit);
-      logEntry.push(data);
-    } catch (e) {
-    }
-
-    log.push(logEntry);
+    return log.log('event', {
+      type: e.type,
+      class: e.toString(),
+      target: {
+        tag: target.tagName,
+        id: target.id,
+        text: target.textContent
+      },
+      emit: data
+    });
   }
 };
 
-log.logState = function(data, stack, updateState) {
-  var logEntry, started, ended, error;
+log.log = function(type, data) {
+  var entry;
 
   if (log.DEBUG) {
-    started = +new Date();
-    try {
-      updateState();
-    } catch (e) {
-      error = e;
-    }
-    ended = +new Date();
-
-    logEntry = ['state', data, ended - started, stack, error];
-    log.push(logEntry);
-
-    if (error) throw error;
-  } else {
-    updateState();
+    entry = [ type, data ];
+    
+    log.push(entry);
+    return entry;
   }
 };
 

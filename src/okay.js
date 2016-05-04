@@ -6,21 +6,24 @@
   if (!Okay) Okay = {};
 
   var each = require('./each');
+  var slice = require('./slice');
   var Timer = require('./timer');
   Okay.emit = require('./emit');
+
+  Okay.emit.onEmit(function(state, elapsed) {
+    Okay.log.log('state', { state: state, elapsed: elapsed });
+  });
+
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
   Okay.timer = new Timer(Okay);
+
   EmissionContext = require('./emission_context');
 
   Okay.eventListener = listener = function (e) {var elementInfo = [];
-    var emissionJSON;
-    var emissionData;
-    var possibleTargets;
+    var emissionJSON, emissionData, possibleTargets, emissionContext, context;
 
-    Okay.log.logEvent(e);
-
-    possibleTargets = e.path ? Array.prototype.slice.apply(e.path) : [];
+    possibleTargets = e.path ? slice(e.path) : [];
     if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
     possibleTargets.unshift(e.target);
 
@@ -34,9 +37,15 @@
 
     if (emissionJSON) {
       emissionData = JSON.parse(emissionJSON);
-      var emissionContext = new EmissionContext(e.target, emissionData);
-      var context = emissionContext.context();
-      Okay.timer.push(context);
+      Okay.log.logEvent(e, emissionData);
+      emissionContext = new EmissionContext(e.target, emissionData);
+      context = emissionContext.context();
+
+      if (Okay.timer.running === true) {
+        Okay.timer.push(context);
+      } else {
+        Okay.emit(context, Okay.watchers);
+      }
     }
   };
 
