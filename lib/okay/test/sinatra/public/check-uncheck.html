@@ -9,7 +9,7 @@
   <body>
     <div id="example">
       <div>
-        <input type="checkbox" id="emitter" data-emit='{"active": "[checked]", "inactive": "![checked]"}' />
+        <input type="checkbox" id="emitter" data-emit='{"active": "[checked]"}' />
         <label for="emitter">Hide</label>
       </div>
 
@@ -19,11 +19,14 @@
       </div>
 
       <div data-watch-class='{"active": "hidden"}'>Checkbox is unchecked</div>
-      <div class="hidden" data-watch-class='{"inactive": "hidden"}'>Checkbox is checked</div>
+      <div class="hidden" data-watch-class='{"!active": "hidden"}'>Checkbox is checked</div>
     </div>
 
     <script type="text/javascript" src="okay.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="okay-jquery.js"></script>
+    <script type="text/javascript">
+      Okay.log.DEBUG = true;
+    </script>
   </body>
 </html>

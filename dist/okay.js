@@ -80,13 +80,17 @@ log.logEvent = function(e, data) {
     return log.log('event', {
       type: e.type,
       class: e.toString(),
-      target: {
-        tag: target.tagName,
-        id: target.id,
-        text: target.textContent
-      },
+      target: log.target(e.target),
       emit: data
     });
+  }
+};
+
+log.target = function(target) {
+  return {
+    tag: target.tagName,
+    id: target.id,
+    text: target.textContent
   }
 };
 
@@ -105,6 +109,7 @@ module.exports = log;
 
 },{}],5:[function(require,module,exports){
 var each = require('./each');
+var log = require('./log');
 
 function Notifier(name, watcher, target, emittedData) {
   this.name = name;
@@ -132,13 +137,30 @@ Notifier.prototype.update = function() {
     var watcherValue;
 
     each(configKey.split(','), function(match) {
+      var inverted;
+
+      if (match.slice(0, 1) === '!') {
+        inverted = true;
+        match = match.replace(/^!/, '')
+      }
+
       each(emittedData, function(dataValue, dataKey) {
         if (watcherValue) return;
-        if (match == dataKey) watcherValue = dataValue;
+        if (match == dataKey) watcherValue = (inverted ? !dataValue : dataValue);
       });
     });
 
-    if (watcherValue != undefined) watcher(target, config[configKey], watcherValue, config);
+    if (watcherValue != undefined) {
+      log.log('watcher', {
+        watcher: watcher.name,
+        argument: config[configKey],
+        value: watcherValue,
+        target: log.target(target),
+        config: config
+      });
+
+      watcher(target, config[configKey], watcherValue, config);
+    }
   });
 };
 
@@ -164,7 +186,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
 };
 
 module.exports = Notifier;
-},{"./each":1}],6:[function(require,module,exports){
+},{"./each":1,"./log":4}],6:[function(require,module,exports){
 (function() {
   'use strict';
   var Okay, EmissionContext, listener, stack;
@@ -176,14 +198,13 @@ module.exports = Notifier;
   var slice = require('./slice');
   var Timer = require('./timer');
   Okay.emit = require('./emit');
+  Okay.watchers = require('./watchers');
+  Okay.log = require('./log');
+  Okay.timer = new Timer(Okay);
 
   Okay.emit.onEmit(function(state, elapsed) {
     Okay.log.log('state', { state: state, elapsed: elapsed });
   });
-
-  Okay.watchers = require('./watchers');
-  Okay.log = require('./log');
-  Okay.timer = new Timer(Okay);
 
   EmissionContext = require('./emission_context');
 

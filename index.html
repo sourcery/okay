@@ -149,7 +149,7 @@
         <div class="lead">Check and Uncheck Checkbox</div>
         <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
   &lt;div&gt;
-    &lt;input type=&quot;checkbox&quot; id=&quot;emitter&quot; data-emit=&#39;{&quot;active&quot;: &quot;[checked]&quot;, &quot;inactive&quot;: &quot;![checked]&quot;}&#39;&gt;
+    &lt;input type=&quot;checkbox&quot; id=&quot;emitter&quot; data-emit=&#39;{&quot;active&quot;: &quot;[checked]&quot;}&#39;&gt;
     &lt;label for=&quot;emitter&quot;&gt;Hide&lt;/label&gt;
   &lt;/div&gt;
    &lt;div data-watch-class=&#39;{&quot;active&quot;:&quot;hidden&quot;}&#39;&gt;
@@ -157,14 +157,14 @@
     &lt;input type=&quot;text&quot; id=&quot;field&quot; data-watch-attr=&#39;{&quot;active&quot;:&quot;disabled&quot;}&#39;&gt;
   &lt;/div&gt;
    &lt;div data-watch-class=&#39;{&quot;active&quot;: &quot;hidden&quot;}&#39;&gt;Checkbox is unchecked&lt;/div&gt;
-  &lt;div class=&quot;hidden&quot; data-watch-class=&#39;{&quot;inactive&quot;: &quot;hidden&quot;}&#39;&gt;Checkbox is checked&lt;/div&gt;
+  &lt;div class=&quot;hidden&quot; data-watch-class=&#39;{&quot;!active&quot;: &quot;hidden&quot;}&#39;&gt;Checkbox is checked&lt;/div&gt;
 &lt;/div&gt;</pre>
         <div class="panel panel-default">
           <div class="panel-heading">Try it out!</div>
           <div class="panel-body">
             <div id="example">
   <div>
-    <input type="checkbox" id="emitter" data-emit='{"active": "[checked]", "inactive": "![checked]"}'>
+    <input type="checkbox" id="emitter" data-emit='{"active": "[checked]"}'>
     <label for="emitter">Hide</label>
   </div>
    <div data-watch-class='{"active":"hidden"}'>
@@ -172,7 +172,7 @@
     <input type="text" id="field" data-watch-attr='{"active":"disabled"}'>
   </div>
    <div data-watch-class='{"active": "hidden"}'>Checkbox is unchecked</div>
-  <div class="hidden" data-watch-class='{"inactive": "hidden"}'>Checkbox is checked</div>
+  <div class="hidden" data-watch-class='{"!active": "hidden"}'>Checkbox is checked</div>
 </div>
           </div>
         </div>

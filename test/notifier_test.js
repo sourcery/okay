@@ -2,13 +2,11 @@ var Notifier = require('../src/notifier');
 var assert = require('assert');
 
 describe('Notifier', function() {
+  var watchData;
+
   function fakeHTMLElement() {
     return { getAttribute: function() { return JSON.stringify(watchData); }};
   }
-
-  var watchData = {
-    "entree[null],entree[fries]": "hidden"
-  };
 
   var assertWatcherSetHidden = function(notifier, bool) {
     var calls = notifier.watcherCalls();
@@ -32,13 +30,13 @@ describe('Notifier', function() {
     return notifier;
   }
 
-  it('hides when entree is null', function() {
+  it('handles basic scenario', function() {
+    watchData = {
+      "active": "hidden"
+    };
+
     var emittedData = {
-      "entree[null]": true,
-      "entree[burgers]": false,
-      "entree[cheese]": false,
-      "entree[fries]": false,
-      "entree": null
+      "active": true
     };
 
     var notifier = buildNotifier('class', watchData, emittedData);
@@ -46,45 +44,81 @@ describe('Notifier', function() {
     assertWatcherSetHidden(notifier, true);
   });
 
-  it('hides when entree is fries', function() {
-    var emittedData = {
-      "entree[null]": false,
-      "entree[burgers]": false,
-      "entree[cheese]": false,
-      "entree[fries]": true,
-      "entree": null
-    };
+  describe('inverting watchers', function() {
+    it('inverts keys starting with !', function() {
+      watchData = {
+        "!active": "hidden"
+      };
 
-    var notifier = buildNotifier('class', watchData, emittedData);
-    notifier.update();
-    assertWatcherSetHidden(notifier, true);
+      var emittedData = {
+        "active": false
+      };
+
+      var notifier = buildNotifier('class', watchData, emittedData);
+      notifier.update();
+      assertWatcherSetHidden(notifier, true);
+    });
   });
 
-  it('shows when entree is burgers', function() {
-    var emittedData = {
-      "entree[null]": false,
-      "entree[burgers]": true,
-      "entree[cheese]": false,
-      "entree[fries]": false,
-      "entree": null
-    };
+  describe('comma separated watchers', function() {
+    it('hides when entree is null', function() {
+      watchData = {
+        "entree[null],entree[fries]": "hidden"
+      };
 
-    var notifier = buildNotifier('class', watchData, emittedData);
-    notifier.update();
-    assertWatcherSetHidden(notifier, false);
-  });
+      var emittedData = {
+        "entree[null]": true,
+        "entree[burgers]": false,
+        "entree[cheese]": false,
+        "entree[fries]": false,
+        "entree": null
+      };
 
-  it('shows when entree is cheese', function() {
-    var emittedData = {
-      "entree[null]": false,
-      "entree[burgers]": false,
-      "entree[cheese]": true,
-      "entree[fries]": false,
-      "entree": null
-    };
+      var notifier = buildNotifier('class', watchData, emittedData);
+      notifier.update();
+      assertWatcherSetHidden(notifier, true);
+    });
 
-    var notifier = buildNotifier('class', watchData, emittedData);
-    notifier.update();
-    assertWatcherSetHidden(notifier, false);
+    it('hides when entree is fries', function() {
+      var emittedData = {
+        "entree[null]": false,
+        "entree[burgers]": false,
+        "entree[cheese]": false,
+        "entree[fries]": true,
+        "entree": null
+      };
+
+      var notifier = buildNotifier('class', watchData, emittedData);
+      notifier.update();
+      assertWatcherSetHidden(notifier, true);
+    });
+
+    it('shows when entree is burgers', function() {
+      var emittedData = {
+        "entree[null]": false,
+        "entree[burgers]": true,
+        "entree[cheese]": false,
+        "entree[fries]": false,
+        "entree": null
+      };
+
+      var notifier = buildNotifier('class', watchData, emittedData);
+      notifier.update();
+      assertWatcherSetHidden(notifier, false);
+    });
+
+    it('shows when entree is cheese', function() {
+      var emittedData = {
+        "entree[null]": false,
+        "entree[burgers]": false,
+        "entree[cheese]": true,
+        "entree[fries]": false,
+        "entree": null
+      };
+
+      var notifier = buildNotifier('class', watchData, emittedData);
+      notifier.update();
+      assertWatcherSetHidden(notifier, false);
+    });
   });
 });

@@ -1,4 +1,5 @@
 var each = require('./each');
+var log = require('./log');
 
 function Notifier(name, watcher, target, emittedData) {
   this.name = name;
@@ -26,13 +27,30 @@ Notifier.prototype.update = function() {
     var watcherValue;
 
     each(configKey.split(','), function(match) {
+      var inverted;
+
+      if (match.slice(0, 1) === '!') {
+        inverted = true;
+        match = match.replace(/^!/, '')
+      }
+
       each(emittedData, function(dataValue, dataKey) {
         if (watcherValue) return;
-        if (match == dataKey) watcherValue = dataValue;
+        if (match == dataKey) watcherValue = (inverted ? !dataValue : dataValue);
       });
     });
 
-    if (watcherValue != undefined) watcher(target, config[configKey], watcherValue, config);
+    if (watcherValue != undefined) {
+      log.log('watcher', {
+        watcher: watcher.name,
+        argument: config[configKey],
+        value: watcherValue,
+        target: log.target(target),
+        config: config
+      });
+
+      watcher(target, config[configKey], watcherValue, config);
+    }
   });
 };
 

@@ -9,14 +9,13 @@
   var slice = require('./slice');
   var Timer = require('./timer');
   Okay.emit = require('./emit');
+  Okay.watchers = require('./watchers');
+  Okay.log = require('./log');
+  Okay.timer = new Timer(Okay);
 
   Okay.emit.onEmit(function(state, elapsed) {
     Okay.log.log('state', { state: state, elapsed: elapsed });
   });
-
-  Okay.watchers = require('./watchers');
-  Okay.log = require('./log');
-  Okay.timer = new Timer(Okay);
 
   EmissionContext = require('./emission_context');
 

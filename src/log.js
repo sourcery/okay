@@ -11,13 +11,17 @@ log.logEvent = function(e, data) {
     return log.log('event', {
       type: e.type,
       class: e.toString(),
-      target: {
-        tag: target.tagName,
-        id: target.id,
-        text: target.textContent
-      },
+      target: log.target(e.target),
       emit: data
     });
+  }
+};
+
+log.target = function(target) {
+  return {
+    tag: target.tagName,
+    id: target.id,
+    text: target.textContent
   }
 };
 
