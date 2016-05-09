@@ -5,9 +5,8 @@
   window.Okay = Okay = {};
   if (!Okay) Okay = {};
 
-  var each = require('./each');
-  var slice = require('./slice');
   var Timer = require('./timer');
+  var Emitter = require('./emitter');
   Okay.emit = require('./emit');
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
@@ -17,35 +16,12 @@
     Okay.log.log('state', { state: state, elapsed: elapsed });
   });
 
-  EmissionContext = require('./emission_context');
+  Okay.eventListener = listener = function (e) {
+    var emitter, timer;
 
-  Okay.eventListener = listener = function (e) {var elementInfo = [];
-    var emissionJSON, emissionData, possibleTargets, emissionContext, context;
-
-    possibleTargets = e.path ? slice(e.path) : [];
-    if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
-    possibleTargets.unshift(e.target);
-
-    function hasDataset(target) {
-      return target && target.dataset && target.dataset.emit;
-    }
-
-    each(possibleTargets, function(target) {
-      if (!emissionJSON && hasDataset(target)) emissionJSON = target.dataset.emit;
-    });
-
-    if (emissionJSON) {
-      emissionData = JSON.parse(emissionJSON);
-      Okay.log.logEvent(e, emissionData);
-      emissionContext = new EmissionContext(e.target, emissionData);
-      context = emissionContext.context();
-
-      if (Okay.timer.running === true) {
-        Okay.timer.push(context);
-      } else {
-        Okay.emit(context, Okay.watchers);
-      }
-    }
+    if (Okay.timer.running === true) timer = Okay.timer;
+    emitter = Emitter.fromEvent(e, timer, Okay.watchers);
+    emitter.call();
   };
 
   Okay.setEventListeners = function() {

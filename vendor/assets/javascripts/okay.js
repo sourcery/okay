@@ -40,10 +40,9 @@ EmissionContext.prototype.context = function() {
 };
 
 module.exports = EmissionContext;
-},{"./each":1,"./emit":3,"./transforms":9}],3:[function(require,module,exports){
+},{"./each":1,"./emit":3,"./transforms":10}],3:[function(require,module,exports){
 var Notifier = require('./notifier');
 var each = require('./each');
-
 var callbacks = [];
 
 function emit(emittedData, watchers) {
@@ -66,7 +65,66 @@ emit.onEmit = function(callback) {
 
 module.exports = emit;
 
-},{"./each":1,"./notifier":5}],4:[function(require,module,exports){
+},{"./each":1,"./notifier":6}],4:[function(require,module,exports){
+var slice = require('./slice');
+var each = require('./each');
+var log = require('./log');
+var emit = require('./emit');
+var EmissionContext = require('./emission_context');
+
+function Emitter(target, data, timer, watchers) {
+  this.target = target;
+  this.data = data;
+  this.timer = timer;
+  this.watchers = watchers
+};
+
+Emitter.prototype.call = function() {
+  var timer, data, watchers;
+
+  timer = this.timer;
+  data = this.data;
+  watchers = this.watchers;
+
+  if (timer) timer.push(data);
+  else emit(data, watchers);
+};
+
+function determineTarget(e) {
+  var target, possibleTargets;
+
+  possibleTargets = e.path ? slice(e.path) : [];
+  if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
+  possibleTargets.unshift(e.target);
+
+  each(possibleTargets, function (eachTarget) {
+    var dataset;
+    if (!target && eachTarget && (dataset = eachTarget.dataset) && dataset.emit) {
+      target = eachTarget;
+    }
+  });
+
+  return target;
+}
+
+Emitter.fromEvent = function (e, timer, watchers) {
+  var target, json, data, context;
+
+  target = determineTarget(e);
+
+  if (target) {
+    json = target.dataset.emit;
+    data = typeof json === 'string' ? JSON.parse(json) : json;
+    log.logEvent(e, data);
+    context = new EmissionContext(e.target, data);
+    context = context.context();
+  }
+
+  return new Emitter(target, context, timer, watchers);
+};
+
+module.exports = Emitter;
+},{"./each":1,"./emission_context":2,"./emit":3,"./log":5,"./slice":8}],5:[function(require,module,exports){
 var log = [];
 
 log.DEBUG = false;
@@ -107,7 +165,7 @@ log.log = function(type, data) {
 
 module.exports = log;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 var each = require('./each');
 var log = require('./log');
 
@@ -186,7 +244,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
 };
 
 module.exports = Notifier;
-},{"./each":1,"./log":4}],6:[function(require,module,exports){
+},{"./each":1,"./log":5}],7:[function(require,module,exports){
 (function() {
   'use strict';
   var Okay, EmissionContext, listener, stack;
@@ -194,9 +252,8 @@ module.exports = Notifier;
   window.Okay = Okay = {};
   if (!Okay) Okay = {};
 
-  var each = require('./each');
-  var slice = require('./slice');
   var Timer = require('./timer');
+  var Emitter = require('./emitter');
   Okay.emit = require('./emit');
   Okay.watchers = require('./watchers');
   Okay.log = require('./log');
@@ -206,35 +263,12 @@ module.exports = Notifier;
     Okay.log.log('state', { state: state, elapsed: elapsed });
   });
 
-  EmissionContext = require('./emission_context');
+  Okay.eventListener = listener = function (e) {
+    var emitter, timer;
 
-  Okay.eventListener = listener = function (e) {var elementInfo = [];
-    var emissionJSON, emissionData, possibleTargets, emissionContext, context;
-
-    possibleTargets = e.path ? slice(e.path) : [];
-    if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
-    possibleTargets.unshift(e.target);
-
-    function hasDataset(target) {
-      return target && target.dataset && target.dataset.emit;
-    }
-
-    each(possibleTargets, function(target) {
-      if (!emissionJSON && hasDataset(target)) emissionJSON = target.dataset.emit;
-    });
-
-    if (emissionJSON) {
-      emissionData = JSON.parse(emissionJSON);
-      Okay.log.logEvent(e, emissionData);
-      emissionContext = new EmissionContext(e.target, emissionData);
-      context = emissionContext.context();
-
-      if (Okay.timer.running === true) {
-        Okay.timer.push(context);
-      } else {
-        Okay.emit(context, Okay.watchers);
-      }
-    }
+    if (Okay.timer.running === true) timer = Okay.timer;
+    emitter = Emitter.fromEvent(e, timer, Okay.watchers);
+    emitter.call();
   };
 
   Okay.setEventListeners = function() {
@@ -255,14 +289,14 @@ module.exports = Notifier;
   Okay.timer.start();
 }());
 
-},{"./each":1,"./emission_context":2,"./emit":3,"./log":4,"./slice":7,"./timer":8,"./watchers":10}],7:[function(require,module,exports){
+},{"./emit":3,"./emitter":4,"./log":5,"./timer":9,"./watchers":11}],8:[function(require,module,exports){
 var arrayPrototypeSlice = Array.prototype.slice;
 
 module.exports = function slice(object) {
   return arrayPrototypeSlice.apply(object);
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var each = require('./each');
 var slice = require('./slice');
 
@@ -318,7 +352,7 @@ Timer.getStateForTimer = function(timer) {
 
 module.exports = Timer;
 
-},{"./each":1,"./slice":7}],9:[function(require,module,exports){
+},{"./each":1,"./slice":8}],10:[function(require,module,exports){
 var transforms = {};
 
 transforms['[checked]'] = function(target) {
@@ -349,7 +383,7 @@ transforms['[options]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
     target.innerHTML = target.innerHTML + value;
@@ -376,4 +410,4 @@ exports.attr = function applyAttr(target, attrName, value) {
   }
 };
 
-},{}]},{},[6]);
+},{}]},{},[7]);

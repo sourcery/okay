@@ -1,6 +1,5 @@
 var Notifier = require('./notifier');
 var each = require('./each');
-
 var callbacks = [];
 
 function emit(emittedData, watchers) {
