@@ -1,14 +1,22 @@
 var transforms = {};
 
-transforms['[checked]'] = function(target) {
+transforms['\\\[checked\\\]'] = function(target) {
   return target.checked;
 };
 
-transforms['![checked]'] = function(target) {
+transforms['!\\\[checked\\\]'] = function(target) {
   return !target.checked;
 };
 
-transforms['[options]'] = function(target, contextKey, context) {
+transforms['{value}'] = function(target, contextKey, context, template) {
+  return template.replace(new RegExp('{value}', 'g'), target.value);
+};
+
+transforms['\\\[value\\\]'] = function(target, contextKey, context, template) {
+  return target.value;
+};
+
+transforms['\\\[options\\\]'] = function(target, contextKey, context) {
   var selectedOptionValue;
   var options = target.children;
 

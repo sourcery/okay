@@ -23,3 +23,7 @@ exports.attr = function applyAttr(target, attrName, value) {
     target.dispatchEvent(event);
   }
 };
+
+exports.submit = function submitForm(target, attrName, value) {
+  target.submit();
+};

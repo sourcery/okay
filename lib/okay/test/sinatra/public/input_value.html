@@ -1,0 +1,26 @@
+<html>
+  <head>
+    <title>Input value</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="example">
+      <div>
+        <div>
+          <label for="source_value">
+            What do you say?
+            <input type="text" data-emit='{"user_input":"[value]"}' id="source_value"/>
+          </label>
+        </div>
+        <div>
+          You entered:
+          <span data-watch-html='{"user_input":""}'>(enter some text above)</span>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="okay.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="okay-jquery.js"></script>
+  </body>
+</html>

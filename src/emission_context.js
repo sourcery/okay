@@ -18,8 +18,8 @@ EmissionContext.prototype.context = function() {
 
   each(data, function(dataValue, dataKey) {
     each(transforms, function(transform, transformName) {
-      if (dataValue == transformName) {
-        context[dataKey] = transform(target, dataKey, context);
+      if (new RegExp(transformName).test(dataValue)) {
+        context[dataKey] = transform(target, dataKey, context, dataValue);
       }
     });
 

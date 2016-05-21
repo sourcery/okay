@@ -28,8 +28,8 @@ EmissionContext.prototype.context = function() {
 
   each(data, function(dataValue, dataKey) {
     each(transforms, function(transform, transformName) {
-      if (dataValue == transformName) {
-        context[dataKey] = transform(target, dataKey, context);
+      if (new RegExp(transformName).test(dataValue)) {
+        context[dataKey] = transform(target, dataKey, context, dataValue);
       }
     });
 
@@ -355,15 +355,23 @@ module.exports = Timer;
 },{"./each":1,"./slice":8}],10:[function(require,module,exports){
 var transforms = {};
 
-transforms['[checked]'] = function(target) {
+transforms['\\\[checked\\\]'] = function(target) {
   return target.checked;
 };
 
-transforms['![checked]'] = function(target) {
+transforms['!\\\[checked\\\]'] = function(target) {
   return !target.checked;
 };
 
-transforms['[options]'] = function(target, contextKey, context) {
+transforms['{value}'] = function(target, contextKey, context, template) {
+  return template.replace(new RegExp('{value}', 'g'), target.value);
+};
+
+transforms['\\\[value\\\]'] = function(target, contextKey, context, template) {
+  return target.value;
+};
+
+transforms['\\\[options\\\]'] = function(target, contextKey, context) {
   var selectedOptionValue;
   var options = target.children;
 
@@ -408,6 +416,10 @@ exports.attr = function applyAttr(target, attrName, value) {
     var event = new Event('change', { bubbles: true, cancelable: false });
     target.dispatchEvent(event);
   }
+};
+
+exports.submit = function submitForm(target, attrName, value) {
+  target.submit();
 };
 
 },{}]},{},[7]);

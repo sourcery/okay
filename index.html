@@ -214,6 +214,88 @@
         <hr/>
         <br/>
       
+        <div class="lead">Input value</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div&gt;
+    &lt;div&gt;
+      &lt;label for=&quot;source_value&quot;&gt;
+        What do you say?
+        &lt;input type=&quot;text&quot; data-emit=&#39;{&quot;user_input&quot;:&quot;[value]&quot;}&#39; id=&quot;source_value&quot;&gt;
+      &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      You entered:
+      &lt;span data-watch-html=&#39;{&quot;user_input&quot;:&quot;&quot;}&#39;&gt;(enter some text above)&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div>
+    <div>
+      <label for="source_value">
+        What do you say?
+        <input type="text" data-emit='{"user_input":"[value]"}' id="source_value">
+      </label>
+    </div>
+    <div>
+      You entered:
+      <span data-watch-html='{"user_input":""}'>(enter some text above)</span>
+    </div>
+  </div>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
+        <div class="lead">Submit form</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div&gt;
+    &lt;form action=&quot;#submitted&quot; data-watch-submit=&#39;{&quot;submit.active&quot;:true}&#39; data-watch-attr=&#39;{&quot;submit.action&quot;:&quot;action&quot;}&#39;&gt;
+      &lt;div&gt;
+        &lt;label for=&quot;submit_form&quot;&gt;
+          &lt;input type=&quot;checkbox&quot; data-emit=&#39;{&quot;submit.active&quot;:&quot;[checked]&quot;}&#39; id=&quot;submit_form&quot;&gt;
+          Submit me!
+        &lt;/label&gt;
+      &lt;/div&gt;
+       &lt;div&gt;
+        &lt;label for=&quot;location_hash&quot;&gt;
+          Where do you want to go?
+          &lt;input type=&quot;text&quot; data-emit=&#39;{&quot;submit.action&quot;:&quot;#{value}&quot;}&#39; id=&quot;location_hash&quot;&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div>
+    <form action="#submitted" data-watch-submit='{"submit.active":true}' data-watch-attr='{"submit.action":"action"}'>
+      <div>
+        <label for="submit_form">
+          <input type="checkbox" data-emit='{"submit.active":"[checked]"}' id="submit_form">
+          Submit me!
+        </label>
+      </div>
+       <div>
+        <label for="location_hash">
+          Where do you want to go?
+          <input type="text" data-emit='{"submit.action":"#{value}"}' id="location_hash">
+        </label>
+      </div>
+    </form>
+  </div>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
         <div class="lead">Click link</div>
         <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
   &lt;div&gt;
