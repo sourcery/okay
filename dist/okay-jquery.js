@@ -62,12 +62,25 @@ exports.class = function applyClass(target, className, value) {
 };
 
 exports.attr = function applyAttr(target, attrName, value) {
-  $(target).removeProp(attrName);
+  var $target, previousValue;
+
+  $target = $(target);
+  if (attrName == 'value') previousValue = $target.val();
+
+  $target.removeProp(attrName);
   if (value) $(target).prop(attrName, value);
+
+  function triggerChangeEvent() {
+    setTimeout(function () { $target.trigger('change'); });
+  }
 
   if (attrName == 'checked') {
     target.checked = value;
-    setTimeout(function () { $(target).trigger('change'); });
+    triggerChangeEvent();
+  }
+
+  if (attrName == 'value' && previousValue != value.toString()) {
+    triggerChangeEvent();
   }
 };
 

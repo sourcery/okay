@@ -6,7 +6,7 @@
   <body>
     <div id="example">
       <div>
-        <form action="#submitted" data-watch-submit='{"submit.active":true}' data-watch-attr='{"submit.action":"action"}'>
+        <form id="submitted_by_checkbox" action="#submitted" data-watch-submit='{"submit.active":true}' data-watch-attr='{"submit.action":"action"}'>
           <div>
             <label for="submit_form">
               <input type="checkbox" data-emit='{"submit.active":"[checked]"}' id="submit_form"/>
@@ -27,5 +27,24 @@
     <script type="text/javascript" src="okay.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
     <script type="text/javascript" src="okay-jquery.js"></script>
+    <script type="text/javascript">
+      function cancelCheckboxSubmissionByPreventDefault() {
+        submitted_by_checkbox.addEventListener('submit', function(e) {
+          e.preventDefault();
+        });
+      }
+
+      function cancelCheckboxSubmissionByStopPropagation() {
+        submitted_by_checkbox.addEventListener('submit', function(e) {
+          e.stopPropagation();
+        });
+      }
+
+      function cancelCheckboxSubmissionByReturn() {
+        submitted_by_checkbox.addEventListener('submit', function(e) {
+          return false
+        });
+      }
+    </script>
   </body>
 </html>

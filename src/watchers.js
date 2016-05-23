@@ -1,3 +1,5 @@
+var dispatchDOMEvent = require('./dispatch-dom-event');
+
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
     target.innerHTML = target.innerHTML + value;
@@ -14,21 +16,23 @@ exports.class = function applyClass(target, className, value) {
 };
 
 exports.attr = function applyAttr(target, attrName, value) {
-  var event;
+  var previousValue;
+  if (attrName == 'value') previousValue = target.value;
   target.removeAttribute(attrName);
   if (value) target.setAttribute(attrName, value);
 
-
   if (attrName == 'checked') {
     target.checked = value;
+    if ((target.checked && !value) || (!target.checked && value)) dispatchDOMEvent(target, 'change');
   }
 
   if (attrName == 'checked' || attrName == 'value') {
-    event = new Event('change', { bubbles: true, cancelable: false });
-    target.dispatchEvent(event);
+    if (previousValue.toString() != value.toString()) dispatchDOMEvent(target, 'change');
   }
 };
 
 exports.submit = function submitForm(target, attrName, value) {
-  target.submit();
+  var cancelled;
+  cancelled = dispatchDOMEvent(target, 'submit');
+  if (!cancelled) target.submit();
 };

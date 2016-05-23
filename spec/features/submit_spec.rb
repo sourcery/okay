@@ -21,5 +21,15 @@ describe 'Submit' do
       wait_for { window_location_hash == '#funplace' }
       expect(window_location_hash).to eq '#funplace'
     end
+
+    scenario 'When default is prevented is stopped' do
+      visit '/submit.html'
+      wait_for_okay
+      evaluate_script('cancelCheckboxSubmissionByPreventDefault()')
+      expect(window_location_hash).to eq ''
+      check "Submit me!"
+      sleep 0.25
+      expect(window_location_hash).to eq ''
+    end
   end
 end

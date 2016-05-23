@@ -1,4 +1,26 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var eventMap = {
+  submit: 'Events',
+  change: 'HTMLEvents'
+};
+
+function dispatchDOMEvent(target, type) {
+  var event, cancelled;
+
+  if ("createEvent" in document) {
+    event = document.createEvent(eventMap[type]);
+    event.initEvent(type, true, true);
+    target.dispatchEvent(event);
+    cancelled = event.defaultPrevented || event.cancelBubble;
+  } else {
+    cancelled = target.fireEvent("on"+type);
+  }
+
+  return cancelled;
+}
+
+module.exports = dispatchDOMEvent;
+},{}],2:[function(require,module,exports){
 function each(collection, callback) {
   for (var i in collection) {
     callback(collection[i], i);
@@ -7,7 +29,7 @@ function each(collection, callback) {
 
 module.exports = each;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var emit = require('./emit');
 var each = require('./each');
 var transforms = require('./transforms');
@@ -40,7 +62,7 @@ EmissionContext.prototype.context = function() {
 };
 
 module.exports = EmissionContext;
-},{"./each":1,"./emit":3,"./transforms":10}],3:[function(require,module,exports){
+},{"./each":2,"./emit":4,"./transforms":11}],4:[function(require,module,exports){
 var Notifier = require('./notifier');
 var each = require('./each');
 var callbacks = [];
@@ -65,7 +87,7 @@ emit.onEmit = function(callback) {
 
 module.exports = emit;
 
-},{"./each":1,"./notifier":6}],4:[function(require,module,exports){
+},{"./each":2,"./notifier":7}],5:[function(require,module,exports){
 var slice = require('./slice');
 var each = require('./each');
 var log = require('./log');
@@ -124,7 +146,7 @@ Emitter.fromEvent = function (e, timer, watchers) {
 };
 
 module.exports = Emitter;
-},{"./each":1,"./emission_context":2,"./emit":3,"./log":5,"./slice":8}],5:[function(require,module,exports){
+},{"./each":2,"./emission_context":3,"./emit":4,"./log":6,"./slice":9}],6:[function(require,module,exports){
 var log = [];
 
 log.DEBUG = false;
@@ -165,7 +187,7 @@ log.log = function(type, data) {
 
 module.exports = log;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var each = require('./each');
 var log = require('./log');
 
@@ -244,7 +266,7 @@ Notifier.dispatch = function(watcherName, watcher, emittedData) {
 };
 
 module.exports = Notifier;
-},{"./each":1,"./log":5}],7:[function(require,module,exports){
+},{"./each":2,"./log":6}],8:[function(require,module,exports){
 (function() {
   'use strict';
   var Okay, EmissionContext, listener, stack;
@@ -289,14 +311,14 @@ module.exports = Notifier;
   Okay.timer.start();
 }());
 
-},{"./emit":3,"./emitter":4,"./log":5,"./timer":9,"./watchers":11}],8:[function(require,module,exports){
+},{"./emit":4,"./emitter":5,"./log":6,"./timer":10,"./watchers":12}],9:[function(require,module,exports){
 var arrayPrototypeSlice = Array.prototype.slice;
 
 module.exports = function slice(object) {
   return arrayPrototypeSlice.apply(object);
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 var each = require('./each');
 var slice = require('./slice');
 
@@ -352,7 +374,7 @@ Timer.getStateForTimer = function(timer) {
 
 module.exports = Timer;
 
-},{"./each":1,"./slice":8}],10:[function(require,module,exports){
+},{"./each":2,"./slice":9}],11:[function(require,module,exports){
 var transforms = {};
 
 transforms['\\\[checked\\\]'] = function(target) {
@@ -391,7 +413,9 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
+var dispatchDOMEvent = require('./dispatch-dom-event');
+
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
     target.innerHTML = target.innerHTML + value;
@@ -408,18 +432,25 @@ exports.class = function applyClass(target, className, value) {
 };
 
 exports.attr = function applyAttr(target, attrName, value) {
+  var previousValue;
+  if (attrName == 'value') previousValue = target.value;
   target.removeAttribute(attrName);
   if (value) target.setAttribute(attrName, value);
 
   if (attrName == 'checked') {
     target.checked = value;
-    var event = new Event('change', { bubbles: true, cancelable: false });
-    target.dispatchEvent(event);
+    if ((target.checked && !value) || (!target.checked && value)) dispatchDOMEvent(target, 'change');
+  }
+
+  if (attrName == 'checked' || attrName == 'value') {
+    if (previousValue.toString() != value.toString()) dispatchDOMEvent(target, 'change');
   }
 };
 
 exports.submit = function submitForm(target, attrName, value) {
-  target.submit();
+  var cancelled;
+  cancelled = dispatchDOMEvent(target, 'submit');
+  if (!cancelled) target.submit();
 };
 
-},{}]},{},[7]);
+},{"./dispatch-dom-event":1}]},{},[8]);
