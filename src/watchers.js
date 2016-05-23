@@ -14,12 +14,17 @@ exports.class = function applyClass(target, className, value) {
 };
 
 exports.attr = function applyAttr(target, attrName, value) {
+  var event;
   target.removeAttribute(attrName);
   if (value) target.setAttribute(attrName, value);
 
+
   if (attrName == 'checked') {
     target.checked = value;
-    var event = new Event('change', { bubbles: true, cancelable: false });
+  }
+
+  if (attrName == 'checked' || attrName == 'value') {
+    event = new Event('change', { bubbles: true, cancelable: false });
     target.dispatchEvent(event);
   }
 };

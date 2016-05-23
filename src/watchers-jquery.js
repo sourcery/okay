@@ -20,4 +20,8 @@ exports.attr = function applyAttr(target, attrName, value) {
     target.checked = value;
     setTimeout(function () { $(target).trigger('change'); });
   }
+
+  if (attrName == 'checked' || attrName == 'value') {
+    setTimeout(function () { $(target).trigger('change'); });
+  }
 };
