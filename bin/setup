@@ -27,3 +27,5 @@ if [ $? != 0 ]; then
   npm install -g mocha
 fi
 
+npm install
+

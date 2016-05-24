@@ -14,7 +14,7 @@ echo "\n"
 
 if [ "$1" == "test" ] || [ "$2" == "test" ]; then
   step "Running the tests..."
-  rspec && mocha
+  mocha && rspec
   step "Done!"
   echo "\n"
 fi

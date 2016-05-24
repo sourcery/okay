@@ -19,12 +19,12 @@ rescue Timeout::Error => e
 end
 
 def emit(state)
-  evaluate_script('Okay.emit(%s, Okay.watchers)' % state.to_json)
+  evaluate_script('Okay.application.performWatchers([%s])' % state.to_json)
 end
 
 def set_adapter
-  evaluate_script('Okay.jQuery.use();') if adapter == :jquery
-  evaluate_script('Okay.timer.stop();') unless timer
+  evaluate_script('Okay.application.setAdapter(Okay.jQuery)') if adapter == :jquery
+  evaluate_script('Okay.application.timer.stop();') unless timer
 end
 
 def each_adapter(&block)
@@ -48,7 +48,7 @@ end
 
 def wait_for_okay
   wait_for(condition: 'okay to be available') { evaluate_script('typeof Okay') == 'object' }
-  wait_for(condition: 'okay to load') { evaluate_script('typeof Okay.emit') == 'function' }
+  wait_for(condition: 'okay to load') { evaluate_script('typeof Okay.application') == 'object' }
   wait_for(condition: 'okay jquery to load') { evaluate_script('typeof Okay.jQuery') == 'object' }
 
   set_adapter

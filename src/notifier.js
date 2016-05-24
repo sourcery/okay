@@ -54,25 +54,4 @@ Notifier.prototype.update = function() {
   });
 };
 
-Notifier.dispatch = function(watcherName, watcher, emittedData) {
-  var targets, i, ii;
-
-  targets = document.querySelectorAll('[data-watch-'+watcherName+']');
-
-  for (i = 0, ii = targets.length; i < ii; i++) {
-    (function() {
-      var currentTarget;
-      var notify;
-
-      currentTarget = targets[i];
-      var notify = function () {
-        new Notifier(watcherName, watcher, currentTarget, emittedData).update();
-      };
-
-       //Let stack clear.
-      setTimeout(notify);
-    }());
-  }
-};
-
 module.exports = Notifier;
