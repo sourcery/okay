@@ -21,13 +21,16 @@ class TemplateData
   ]
 
   def examples
-    Dir.glob('./lib/okay/test/sinatra/public/**/*').each_with_object([]) do |file, object|
+    Dir.glob('./lib/okay/test/public/**/*').each_with_object([]) do |file, object|
       pathname = Pathname(file)
-      document = Nokogiri::HTML(Pathname(file).read)
-      title = document.css('title').text
-      example_html = document.css('#example').to_s
-      indent = example_html.match(/^\s+/).to_a.first
-      object << [ title, example_html.gsub(/^\s{4}/, ''), pathname.basename.to_s ]
+      basename = pathname.basename
+
+      if ORDER.index(basename.to_s)
+        document = Nokogiri::HTML(Pathname(file).read)
+        title = document.css('title').text
+        example_html = document.css('#example').to_s
+          object << [ title, example_html.gsub(/^\s{4}/, ''), basename.to_s ]
+      end
     end.sort_by do |example|
       ORDER.index(example[2])
     end

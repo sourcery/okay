@@ -8,7 +8,6 @@ step()
 step "Building dist/okay.js..."
 browserify src/okay.js -o dist/okay.js
 browserify src/okay-jquery.js -o dist/okay-jquery.js
-cp dist/*.js vendor/assets/javascripts
 step "Done!"
 echo "\n"
 

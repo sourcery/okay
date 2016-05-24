@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-cd ./lib/okay/test/sinatra
+cd ./lib/okay/test
 rackup
 cd ../../../..

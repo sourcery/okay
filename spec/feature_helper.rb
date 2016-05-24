@@ -2,11 +2,11 @@ require 'spec_helper'
 require 'capybara'
 require "capybara/rspec"
 require "capybara/poltergeist"
-require 'okay/test/sinatra/application'
+require 'okay/test/application'
 require 'timeout'
 
 Capybara.default_driver = :poltergeist
-Capybara.app = Okay::Test::Sinatra::Application
+Capybara.app = Okay::Test::Application
 
 RSpec.configure do |config|
   config.include Capybara::DSL
