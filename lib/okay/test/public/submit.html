@@ -6,21 +6,46 @@
   <body>
     <div id="example">
       <div>
-        <form id="submitted_by_checkbox" action="#submitted" data-watch-submit='{"submit.active":true}' data-watch-attr='{"submit.action":"action"}'>
-          <div>
-            <label for="submit_form">
-              <input type="checkbox" data-emit='{"submit.active":"[checked]"}' id="submit_form"/>
-              Submit me!
-            </label>
-          </div>
+        <div class="row">
+          <form id="submitted_by_checkbox" method="POST" action="https://shitty-proxy.herokuapp.com/https://docs.google.com/a/sourcery.us/forms/d/1xziFPH7fWbV430EMz8fqEoShKJwInjGf-lgHySeaSR4/formResponse" data-watch-submit='{"submit.active":"true","submit.xhr":"xhr"}' data-watch-attr='{"submit.action":"action"}'>
+            <div class="panel">
+            <div class="panel-heading">Pasta or Rice?</div>
+            <div class="panel-body">
+                <div>
+                  <label for="spaghetti">
+                    <input type="radio" id="spaghetti" name="entry.325160556" value="Pasta" />
+                    Pasta
+                  </label>
+                </div>
+
+                <div>
+                  <label for="rice">
+                    <input type="radio" id="rice" name="entry.325160556" value="Rice" />
+                    Rice
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
 
           <div>
-            <label for="location_hash">
-              Where do you want to go?
-              <input type="text" data-emit='{"submit.action":"#{value}"}' id="location_hash"/>
-            </label>
+            <a href="javascript:void(0)" data-emit='{"submit.active":"true"}' id="submit_form" class="btn btn-primary">Regular Submit!</a>
+            <a href="javascript:void(0)" data-emit='{"submit.xhr":"true"}' id="send_xhr" class="btn btn-success">Submit XHR!</a>
           </div>
-        </form>
+
+          <div class="panel panel-danger hidden" data-watch-class='{"submit.xhr.start":"hidden","submit.xhr.response.success":"hidden"}'>
+            <div class="panel-heading">Error: <span data-watch-html='{"submit.xhr.response.status":""}'></span></div>
+          </div>
+
+          <div class="panel panel-success hidden" data-watch-class='{"submit.xhr.start":"hidden","!submit.xhr.response.success":"hidden"}'>
+            <div class="panel-heading">Thanks for your input!</div>
+            <div class="panel-body">
+              <p class="lead">Google sent back:</p>
+              <textarea data-watch-html='{"submit.xhr.response":""}' style="width: 100%; height: 100px"></textarea>
+              <p>In your own app, do something more useful with the html, like update the page. (Google forms returns html that turn the page's background purple...)</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

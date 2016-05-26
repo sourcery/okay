@@ -49,7 +49,7 @@ Notifier.prototype.update = function() {
         config: config
       });
 
-      watcher(target, config[configKey], watcherValue, config);
+      watcher(target, config[configKey], watcherValue, config, configKey);
     }
   });
 };

@@ -1,4 +1,6 @@
+var each = require('./each');
 var dispatchDOMEvent = require('./dispatch-dom-event');
+var sendXhr = require('./send-xhr');
 
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
@@ -31,8 +33,32 @@ exports.attr = function applyAttr(target, attrName, value) {
   }
 };
 
-exports.submit = function submitForm(target, attrName, value) {
-  var cancelled;
-  cancelled = dispatchDOMEvent(target, 'submit');
-  if (!cancelled) target.submit();
+exports.submit = function submitForm(target, watcherSetting, emitterSetting, watcherConfig, watcherKey) {
+  var shouldSubmitForm, shouldSubmitWithXhr, data;
+
+  shouldSubmitForm = watcherSetting === emitterSetting;
+  shouldSubmitWithXhr = watcherSetting === 'xhr';
+
+  if (!shouldSubmitForm && !shouldSubmitWithXhr) return;
+
+  shouldSubmitForm = !dispatchDOMEvent(target, 'submit');
+
+  if (shouldSubmitWithXhr) {
+    shouldSubmitForm = false;
+
+    data = {};
+    data[watcherKey+'.request.started'] = true;
+    Okay.application.performWatchers([data]);
+
+    sendXhr(target, function(e, xhr) {
+      data = {};
+      data[watcherKey+'.response'] = xhr.responseText;
+      data[watcherKey+'.response.'+xhr.status] = xhr.responseText;
+      data[watcherKey+'.response.status'] = xhr.status;
+      data[watcherKey+'.response.success'] = xhr.status.toString()[0] == '2';
+      Okay.application.performWatchers([data])
+    });
+  }
+
+  if (shouldSubmitForm) target.submit();
 };

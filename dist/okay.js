@@ -93,7 +93,7 @@ AcquireTargetsForWatcher.prototype.perform = function() {
   this.context.targets = slice(document.querySelectorAll('[data-watch-'+name+']'));
 };
 
-},{"./each":10,"./slice":17,"node-interactor":1}],5:[function(require,module,exports){
+},{"./each":10,"./slice":18,"node-interactor":1}],5:[function(require,module,exports){
 var each = require('./each');
 var benchmark = require('./benchmark');
 var Timer = require('./timer');
@@ -173,7 +173,7 @@ Application.prototype.setAdapter = function(adapter) {
 
 module.exports = Application;
 
-},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./each":10,"./get-data-from-event":11,"./log":12,"./merge-to-hash":13,"./perform-watcher-on-target":16,"./timer":18,"./watchers":20}],6:[function(require,module,exports){
+},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./each":10,"./get-data-from-event":11,"./log":12,"./merge-to-hash":13,"./perform-watcher-on-target":16,"./timer":19,"./watchers":21}],6:[function(require,module,exports){
 var each = require('./each');
 var transforms = require('./transforms');
 var perform = require('node-interactor');
@@ -201,7 +201,7 @@ ApplyTransforms.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./each":10,"./transforms":19,"node-interactor":1}],7:[function(require,module,exports){
+},{"./each":10,"./transforms":20,"node-interactor":1}],7:[function(require,module,exports){
 Base = {};
 Base.watchers = {};
 
@@ -314,7 +314,7 @@ GetDataFromEvent.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./apply-transforms":6,"./each":10,"./log":12,"./slice":17,"node-interactor":1}],12:[function(require,module,exports){
+},{"./apply-transforms":6,"./each":10,"./log":12,"./slice":18,"node-interactor":1}],12:[function(require,module,exports){
 var log = [];
 
 log.DEBUG = false;
@@ -425,7 +425,7 @@ Notifier.prototype.update = function() {
         config: config
       });
 
-      watcher(target, config[configKey], watcherValue, config);
+      watcher(target, config[configKey], watcherValue, config, configKey);
     }
   });
 };
@@ -448,7 +448,7 @@ module.exports = Notifier;
   Okay.application.timer.start();
 }());
 
-},{"./application":5,"./base":7,"./log":12,"./watchers":20}],16:[function(require,module,exports){
+},{"./application":5,"./base":7,"./log":12,"./watchers":21}],16:[function(require,module,exports){
 var perform = require('node-interactor');
 var slice = require('./slice');
 var each = require('./each');
@@ -466,14 +466,28 @@ PerformWatcherOnTarget.prototype.perform = function() {
   notifier.update();
 };
 
-},{"./each":10,"./notifier":14,"./slice":17,"node-interactor":1}],17:[function(require,module,exports){
+},{"./each":10,"./notifier":14,"./slice":18,"node-interactor":1}],17:[function(require,module,exports){
+var each = require('./each');
+
+function sendXhr(target, callback) {
+  var xhr;
+  xhr = new XMLHttpRequest();
+  xhr.open(target.method, target.action);
+  function onload(e) { callback.call(target, e, xhr); }
+  xhr.addEventListener('load', onload);
+  xhr.send(new FormData(target));
+}
+
+module.exports = sendXhr;
+
+},{"./each":10}],18:[function(require,module,exports){
 var arrayPrototypeSlice = Array.prototype.slice;
 
 module.exports = function slice(object) {
   return arrayPrototypeSlice.apply(object);
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var each = require('./each');
 var slice = require('./slice');
 
@@ -514,7 +528,7 @@ Timer.prototype.clear = function() {
 
 module.exports = Timer;
 
-},{"./each":10,"./slice":17}],19:[function(require,module,exports){
+},{"./each":10,"./slice":18}],20:[function(require,module,exports){
 var transforms = {};
 
 transforms['\\\[checked\\\]'] = function(target) {
@@ -553,8 +567,10 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
+var each = require('./each');
 var dispatchDOMEvent = require('./dispatch-dom-event');
+var sendXhr = require('./send-xhr');
 
 exports.html = function applyHTML(target, setting, value, config) {
   if (setting == 'append()') {
@@ -587,10 +603,34 @@ exports.attr = function applyAttr(target, attrName, value) {
   }
 };
 
-exports.submit = function submitForm(target, attrName, value) {
-  var cancelled;
-  cancelled = dispatchDOMEvent(target, 'submit');
-  if (!cancelled) target.submit();
+exports.submit = function submitForm(target, watcherSetting, emitterSetting, watcherConfig, watcherKey) {
+  var shouldSubmitForm, shouldSubmitWithXhr, data;
+
+  shouldSubmitForm = watcherSetting === emitterSetting;
+  shouldSubmitWithXhr = watcherSetting === 'xhr';
+
+  if (!shouldSubmitForm && !shouldSubmitWithXhr) return;
+
+  shouldSubmitForm = !dispatchDOMEvent(target, 'submit');
+
+  if (shouldSubmitWithXhr) {
+    shouldSubmitForm = false;
+
+    data = {};
+    data[watcherKey+'.request.started'] = true;
+    Okay.application.performWatchers([data]);
+
+    sendXhr(target, function(e, xhr) {
+      data = {};
+      data[watcherKey+'.response'] = xhr.responseText;
+      data[watcherKey+'.response.'+xhr.status] = xhr.responseText;
+      data[watcherKey+'.response.status'] = xhr.status;
+      data[watcherKey+'.response.success'] = xhr.status.toString()[0] == '2';
+      Okay.application.performWatchers([data])
+    });
+  }
+
+  if (shouldSubmitForm) target.submit();
 };
 
-},{"./dispatch-dom-event":9}]},{},[15]);
+},{"./dispatch-dom-event":9,"./each":10,"./send-xhr":17}]},{},[15]);
