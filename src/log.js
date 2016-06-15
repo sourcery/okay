@@ -1,4 +1,5 @@
 var log = [];
+log.byType = {};
 
 log.DEBUG = false;
 
@@ -32,6 +33,9 @@ log.log = function(type, data) {
     entry = [ type, data ];
     
     log.push(entry);
+    if (log.byType[type] == undefined) log.byType[type] = [];
+    log.byType[type].push(entry);
+    console.log("[ okay ]\n\n"+type+"\n\n"+JSON.stringify(data)+"\n\n");
     return entry;
   }
 };

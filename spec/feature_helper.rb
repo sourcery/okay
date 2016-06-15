@@ -50,6 +50,7 @@ def wait_for_okay
   wait_for(condition: 'okay to be available') { evaluate_script('typeof Okay') == 'object' }
   wait_for(condition: 'okay to load') { evaluate_script('typeof Okay.application') == 'object' }
   wait_for(condition: 'okay jquery to load') { evaluate_script('typeof Okay.jQuery') == 'object' }
+  evaluate_script('Okay.log.DEBUG = false;')
 
   set_adapter
 end

@@ -93,8 +93,9 @@ AcquireTargetsForWatcher.prototype.perform = function() {
   this.context.targets = slice(document.querySelectorAll('[data-watch-'+name+']'));
 };
 
-},{"./each":10,"./slice":17,"node-interactor":1}],5:[function(require,module,exports){
+},{"./each":11,"./slice":18,"node-interactor":1}],5:[function(require,module,exports){
 var each = require('./each');
+var count = require('./count');
 var benchmark = require('./benchmark');
 var Timer = require('./timer');
 var mergeToHash = require('./merge-to-hash');
@@ -157,10 +158,12 @@ Application.prototype.performWatchers = function(data) {
       });
     });
 
-    log.log('state', {
-      state: emittedData,
-      elapsed: elapsed
-    })
+    if (count(emittedData) > 0) {
+      log.log('state', {
+        state: emittedData,
+        elapsed: elapsed
+      });
+    }
   });
 };
 
@@ -173,7 +176,7 @@ Application.prototype.setAdapter = function(adapter) {
 
 module.exports = Application;
 
-},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./each":10,"./get-data-from-event":11,"./log":12,"./merge-to-hash":13,"./perform-watcher-on-target":16,"./timer":18,"./watchers":20}],6:[function(require,module,exports){
+},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./count":9,"./each":11,"./get-data-from-event":12,"./log":13,"./merge-to-hash":14,"./perform-watcher-on-target":17,"./timer":19,"./watchers":21}],6:[function(require,module,exports){
 var each = require('./each');
 var transforms = require('./transforms');
 var perform = require('node-interactor');
@@ -201,7 +204,7 @@ ApplyTransforms.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./each":10,"./transforms":19,"node-interactor":1}],7:[function(require,module,exports){
+},{"./each":11,"./transforms":20,"node-interactor":1}],7:[function(require,module,exports){
 Base = {};
 Base.watchers = {};
 
@@ -235,6 +238,16 @@ function benchmark(subject) {
 
 module.exports = benchmark;
 },{}],9:[function(require,module,exports){
+var each = require('./each');
+
+function count(object) {
+  var i = 0;
+  each(object, function() { i++; });
+  return i;
+}
+
+module.exports = count;
+},{"./each":11}],10:[function(require,module,exports){
 var eventMap = {
   submit: 'Events',
   change: 'HTMLEvents'
@@ -256,7 +269,7 @@ function dispatchDOMEvent(target, type) {
 }
 
 module.exports = dispatchDOMEvent;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function each(collection, callback) {
   for (var i in collection) {
     callback(collection[i], i);
@@ -265,7 +278,7 @@ function each(collection, callback) {
 
 module.exports = each;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 var perform = require('node-interactor');
 var slice = require('./slice');
 var each = require('./each');
@@ -314,8 +327,9 @@ GetDataFromEvent.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./apply-transforms":6,"./each":10,"./log":12,"./slice":17,"node-interactor":1}],12:[function(require,module,exports){
+},{"./apply-transforms":6,"./each":11,"./log":13,"./slice":18,"node-interactor":1}],13:[function(require,module,exports){
 var log = [];
+log.byType = {};
 
 log.DEBUG = false;
 
@@ -349,13 +363,16 @@ log.log = function(type, data) {
     entry = [ type, data ];
     
     log.push(entry);
+    if (log.byType[type] == undefined) log.byType[type] = [];
+    log.byType[type].push(entry);
+    console.log("[ okay ]\n\n"+type+"\n\n"+JSON.stringify(data)+"\n\n");
     return entry;
   }
 };
 
 module.exports = log;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var each = require('./each');
 
 function mergeToHash(items) {
@@ -373,7 +390,7 @@ function mergeToHash(items) {
 }
 
 module.exports = mergeToHash;
-},{"./each":10}],14:[function(require,module,exports){
+},{"./each":11}],15:[function(require,module,exports){
 var each = require('./each');
 var log = require('./log');
 
@@ -431,7 +448,7 @@ Notifier.prototype.update = function() {
 };
 
 module.exports = Notifier;
-},{"./each":10,"./log":12}],15:[function(require,module,exports){
+},{"./each":11,"./log":13}],16:[function(require,module,exports){
 (function() {
   'use strict';
   var Okay, Application, adapter, watchers;
@@ -448,7 +465,7 @@ module.exports = Notifier;
   Okay.application.timer.start();
 }());
 
-},{"./application":5,"./base":7,"./log":12,"./watchers":20}],16:[function(require,module,exports){
+},{"./application":5,"./base":7,"./log":13,"./watchers":21}],17:[function(require,module,exports){
 var perform = require('node-interactor');
 var slice = require('./slice');
 var each = require('./each');
@@ -466,14 +483,14 @@ PerformWatcherOnTarget.prototype.perform = function() {
   notifier.update();
 };
 
-},{"./each":10,"./notifier":14,"./slice":17,"node-interactor":1}],17:[function(require,module,exports){
+},{"./each":11,"./notifier":15,"./slice":18,"node-interactor":1}],18:[function(require,module,exports){
 var arrayPrototypeSlice = Array.prototype.slice;
 
 module.exports = function slice(object) {
   return arrayPrototypeSlice.apply(object);
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var each = require('./each');
 var slice = require('./slice');
 
@@ -514,7 +531,7 @@ Timer.prototype.clear = function() {
 
 module.exports = Timer;
 
-},{"./each":10,"./slice":17}],19:[function(require,module,exports){
+},{"./each":11,"./slice":18}],20:[function(require,module,exports){
 var transforms = {};
 
 transforms['\\\[checked\\\]'] = function(target) {
@@ -553,7 +570,7 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var dispatchDOMEvent = require('./dispatch-dom-event');
 
 exports.html = function applyHTML(target, setting, value, config) {
@@ -593,4 +610,4 @@ exports.submit = function submitForm(target, attrName, value) {
   if (!cancelled) target.submit();
 };
 
-},{"./dispatch-dom-event":9}]},{},[15]);
+},{"./dispatch-dom-event":10}]},{},[16]);

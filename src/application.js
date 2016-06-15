@@ -1,4 +1,5 @@
 var each = require('./each');
+var count = require('./count');
 var benchmark = require('./benchmark');
 var Timer = require('./timer');
 var mergeToHash = require('./merge-to-hash');
@@ -61,10 +62,12 @@ Application.prototype.performWatchers = function(data) {
       });
     });
 
-    log.log('state', {
-      state: emittedData,
-      elapsed: elapsed
-    })
+    if (count(emittedData) > 0) {
+      log.log('state', {
+        state: emittedData,
+        elapsed: elapsed
+      });
+    }
   });
 };
 
