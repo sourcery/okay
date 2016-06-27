@@ -17,7 +17,8 @@ class TemplateData
     'select.html',
     'input_value.html',
     'submit.html',
-    'click-link.html'
+    'click-link.html',
+    'keyup.html'
   ]
 
   def examples

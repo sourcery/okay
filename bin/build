@@ -13,7 +13,7 @@ echo "\n"
 
 if [ "$1" == "test" ] || [ "$2" == "test" ]; then
   step "Running the tests..."
-  mocha && rspec
+  mocha && parallel_rspec
   step "Done!"
   echo "\n"
 fi

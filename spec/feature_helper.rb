@@ -7,9 +7,28 @@ require 'timeout'
 
 Capybara.default_driver = :poltergeist
 Capybara.app = Okay::Test::Application
+Capybara.server_port = 4000 + ENV['TEST_ENV_NUMBER'].to_i
 
 RSpec.configure do |config|
   config.include Capybara::DSL
+
+  config.example_status_persistence_file_path = 'tmp/rspec_status.log'
+
+  config.around(:each) do |example|
+    tries = 0
+    begin
+      example.run
+      exception = example.example.exception
+      if exception && tries < 10
+        example.example.instance_variable_set(:@exception, nil)
+        raise exception
+      end
+    rescue => e
+      tries += 1
+      # print "\nRetrying #{example.location} (Try ##{tries})...\n"
+      retry
+    end
+  end
 end
 
 def wait_for(timeout: 10, condition: 'satisfy condition', &block)

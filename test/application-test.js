@@ -147,11 +147,13 @@ describe('Application', function() {
   describe('#setEventListeners', function() {
     function assertAddedEventListeners(target) {
       var addEventListenerCalls = target.addEventListener.calls;
-      assert.equal(addEventListenerCalls.length, 2);
+      assert.equal(addEventListenerCalls.length, 3);
       assert.equal(addEventListenerCalls[0].arguments[0], 'change');
       assert.equal(addEventListenerCalls[0].arguments[1], application.listener);
       assert.equal(addEventListenerCalls[1].arguments[0], 'click');
       assert.equal(addEventListenerCalls[1].arguments[1], application.listener);
+      assert.equal(addEventListenerCalls[2].arguments[0], 'keyup');
+      assert.equal(addEventListenerCalls[2].arguments[1], application.listener);
     }
     it('adds event listeners to document and window', function() {
       assertAddedEventListeners(document);
@@ -162,11 +164,13 @@ describe('Application', function() {
   describe('#clearEventListeners', function() {
     function assertClearedEventListeners(target) {
       var removeEventListenerCalls = target.removeEventListener.calls;
-      assert.equal(removeEventListenerCalls.length, 2);
+      assert.equal(removeEventListenerCalls.length, 3);
       assert.equal(removeEventListenerCalls[0].arguments[0], 'change');
       assert.equal(removeEventListenerCalls[0].arguments[1], application.listener);
       assert.equal(removeEventListenerCalls[1].arguments[0], 'click');
       assert.equal(removeEventListenerCalls[1].arguments[1], application.listener);
+      assert.equal(removeEventListenerCalls[2].arguments[0], 'keyup');
+      assert.equal(removeEventListenerCalls[2].arguments[1], application.listener);
     }
     it('removes event listeners to document and window', function() {
       application.adapter.clearEventListeners(application);

@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Event options ("Keyup" event type)</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="example">
+      <div>
+        <label for="keyup_control">Type something here:</label>
+        <input type="text" data-emit='{"keyup.data":"{value}"}' data-emit-event='{"type":"keyup"}' id="keyup_control"/>
+      </div>
+
+      <div>
+        Shows up here:
+        <span data-watch-html='{"keyup.data":""}'></span>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="okay.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha256-aaODHAgvwQW1bFOGXMeX+pC4PZIPsvn2h1sArYOhgXQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="okay-jquery.js"></script>
+  </body>
+</html>

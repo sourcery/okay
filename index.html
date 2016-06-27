@@ -325,6 +325,35 @@
         <hr/>
         <br/>
       
+        <div class="lead">Event options ("Keyup" event type)</div>
+        <pre class="hightlight">&lt;div id=&quot;example&quot;&gt;
+  &lt;div&gt;
+    &lt;label for=&quot;keyup_control&quot;&gt;Type something here:&lt;/label&gt;
+    &lt;input type=&quot;text&quot; data-emit=&#39;{&quot;keyup.data&quot;:&quot;{value}&quot;}&#39; data-emit-event=&#39;{&quot;type&quot;:&quot;keyup&quot;}&#39; id=&quot;keyup_control&quot;&gt;
+  &lt;/div&gt;
+   &lt;div&gt;
+    Shows up here:
+    &lt;span data-watch-html=&#39;{&quot;keyup.data&quot;:&quot;&quot;}&#39;&gt;&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+        <div class="panel panel-default">
+          <div class="panel-heading">Try it out!</div>
+          <div class="panel-body">
+            <div id="example">
+  <div>
+    <label for="keyup_control">Type something here:</label>
+    <input type="text" data-emit='{"keyup.data":"{value}"}' data-emit-event='{"type":"keyup"}' id="keyup_control">
+  </div>
+   <div>
+    Shows up here:
+    <span data-watch-html='{"keyup.data":""}'></span>
+  </div>
+</div>
+          </div>
+        </div>
+        <hr/>
+        <br/>
+      
 
       <div>
         Made by

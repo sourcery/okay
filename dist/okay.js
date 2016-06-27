@@ -208,20 +208,25 @@ ApplyTransforms.prototype.perform = function() {
 Base = {};
 Base.watchers = {};
 
+function setEventListeners(target, listener, addListeners) {
+  var functionName;
+  functionName = 'addEventListener';
+  if (addListeners === false) functionName = 'removeEventListener';
+  target[functionName]('change', listener);
+  target[functionName]('click', listener);
+  target[functionName]('keyup', listener);
+}
+
 Base.setEventListeners = function(application) {
   var listener = application.listener;
-  window.addEventListener('change', listener);
-  window.addEventListener('click', listener);
-  document.addEventListener('change', listener);
-  document.addEventListener('click', listener);
+  setEventListeners(window, listener);
+  setEventListeners(document, listener);
 };
 
 Base.clearEventListeners = function(application) {
   var listener = application.listener;
-  window.removeEventListener('change', listener);
-  window.removeEventListener('click', listener);
-  document.removeEventListener('change', listener);
-  document.removeEventListener('click', listener);
+  setEventListeners(window, listener, false);
+  setEventListeners(document, listener, false);
 };
 
 module.exports = Base;
@@ -291,16 +296,21 @@ GetDataFromEvent.perform = perform;
 // ---
 
 function determineTarget(e) {
-  var target, possibleTargets;
+  var target, possibleTargets, eventType;
+
+  eventType = e.type;
 
   possibleTargets = e.path ? slice(e.path) : [];
   if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
   possibleTargets.unshift(e.target);
 
   each(possibleTargets, function (eachTarget) {
-    var dataset;
+    var dataset, eventFilter;
     if (!target && eachTarget && (dataset = eachTarget.dataset) && dataset.emit) {
-      target = eachTarget;
+      if (dataset.emitEvent) eventFilter = JSON.parse(dataset.emitEvent);
+      if ((!eventFilter && (eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
+        target = eachTarget;
+      }
     }
   });
 

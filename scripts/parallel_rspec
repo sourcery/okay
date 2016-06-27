@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'pty'
+require 'pry'
+require 'json'
+require 'pathname'
+require 'benchmark'
+
+THREAD_COUNT = 8
+spec_files = Dir.glob('spec/**/*_spec.rb')
+slice_size = (spec_files.count / THREAD_COUNT.to_f).ceil
+
+dirname = Dir.mktmpdir
+
+only_failures = ARGV.include?('--only-failures')
+commands = spec_files.each_slice(slice_size).each_with_index.map do |examples, thread_index|
+  "TEST_ENV_NUMBER=#{thread_index} rspec #{examples.join(' ')}#{' --only-failures' if only_failures} -f json -o #{dirname}/thread#{thread_index}.json -f progress"
+end
+
+real_thread_count = commands.count
+
+benchmark = Benchmark::measure do
+  threads = commands.map do |command|
+    Thread.new do
+      print "#{command}\n"
+
+      PTY.spawn(command) do |stdout, stdin, pid|
+        begin
+          stdout.each do |line|
+            print line
+          end
+        rescue Errno::EIO
+        end
+      end
+    end
+  end
+
+  threads.map(&:join)
+end
+
+result = []
+(0..(real_thread_count-1)).each do |i|
+  json = JSON.parse(Pathname("#{dirname}/thread#{i}.json").read)
+  result = result.concat(json['examples'])
+end
+
+total = result.count
+failed = result.select { |e| e['status'] == 'failed' }
+pending = result.select { |e| e['status'] == 'pending' }
+run_time = result.map { |e| e['run_time'] }.inject(&:+)
+
+print <<-RESULT
+Finished in #{'%.4f' % run_time} seconds (#{'%.4f' % benchmark.total} real time)
+#{total} examples, #{failed.count} failures#{", #{pending.count} pending" if pending.any?}
+RESULT
+
+exit(1) if failed.any?

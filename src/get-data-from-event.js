@@ -10,16 +10,21 @@ GetDataFromEvent.perform = perform;
 // ---
 
 function determineTarget(e) {
-  var target, possibleTargets;
+  var target, possibleTargets, eventType;
+
+  eventType = e.type;
 
   possibleTargets = e.path ? slice(e.path) : [];
   if (e.currentTarget != document) possibleTargets.unshift(e.currentTarget);
   possibleTargets.unshift(e.target);
 
   each(possibleTargets, function (eachTarget) {
-    var dataset;
+    var dataset, eventFilter;
     if (!target && eachTarget && (dataset = eachTarget.dataset) && dataset.emit) {
-      target = eachTarget;
+      if (dataset.emitEvent) eventFilter = JSON.parse(dataset.emitEvent);
+      if ((!eventFilter && (eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
+        target = eachTarget;
+      }
     }
   });
 

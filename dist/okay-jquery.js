@@ -11,11 +11,13 @@
 
   Okay.jQuery.setEventListeners = function(application) {
     $(document).on('change', '[data-emit]', application.listener);
+    $(document).on('keyup', '[data-emit]', application.listener);
     $(document).on('click', '[data-emit]', application.listener);
   };
 
   Okay.jQuery.clearEventListeners = function(application) {
     $(document).off('change', application.listener);
+    $(document).off('keyup', application.listener);
     $(document).off('click', application.listener);
   };
 }());
