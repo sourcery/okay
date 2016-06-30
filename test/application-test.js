@@ -6,7 +6,7 @@ var assert = require('assert');
 var mockFunction = require('./mock-function');
 
 describe('Application', function() {
-  var document, window, application, GetDataFromEvent, AcquireTargetsForWatcher, PerformWatcherOnTarget;
+  var document, window, application, GetDataFromEvent, AcquireTargetsForWatcher, PerformWatcher;
 
   function fakeEventTarget() {
     return {
@@ -23,20 +23,15 @@ describe('Application', function() {
       perform: mockFunction({ data: 'real good data' })
     };
 
-    AcquireTargetsForWatcher = {
-      perform: mockFunction({ targets: [ 'target1', 'target2' ] })
-    };
-
-    PerformWatcherOnTarget = {
-      perform: mockFunction()
-    };
+    AcquireTargetsForWatcher = mockFunction([ 'target1', 'target2' ]);
+    PerformWatcher = mockFunction();
 
     adapter.__set__('document', document);
     adapter.__set__('window', window);
     Application.__set__('window', window);
     Application.__set__('GetDataFromEvent', GetDataFromEvent);
     Application.__set__('AcquireTargetsForWatcher', AcquireTargetsForWatcher);
-    Application.__set__('PerformWatcherOnTarget', PerformWatcherOnTarget);
+    Application.__set__('PerformWatcher', PerformWatcher);
     application = new Application(adapter);
   });
 
@@ -108,39 +103,15 @@ describe('Application', function() {
     it('cycles through watchers, finding targets and performing watchers on the targets', function() {
       application.performWatchers([ { my: 'good' }, { data: 'set' } ]);
 
-      //assert.ok(AcquireTargetsForWatcher.perform.calls.length, 2);
-      assert.deepEqual(AcquireTargetsForWatcher.perform.calls[0].arguments[0], { name: 'first' });
-      assert.deepEqual(AcquireTargetsForWatcher.perform.calls[1].arguments[0], { name: 'second' });
+      //assert.ok(AcquireTargetsForWatcher.calls.length, 2);
+      assert.deepEqual(AcquireTargetsForWatcher.calls[0].arguments[0], 'first');
+      assert.deepEqual(AcquireTargetsForWatcher.calls[1].arguments[0], 'second');
 
-      assert.deepEqual(PerformWatcherOnTarget.perform.calls.length, 4);
-
-      assert.deepEqual(PerformWatcherOnTarget.perform.calls[0].arguments[0], {
-        name: 'first',
-        watcher: 'do first watcher',
-        target: 'target1',
-        emittedData: { my: 'good', data: 'set' }
-      });
-
-      assert.deepEqual(PerformWatcherOnTarget.perform.calls[1].arguments[0], {
-        name: 'first',
-        watcher: 'do first watcher',
-        target: 'target2',
-        emittedData: { my: 'good', data: 'set' }
-      });
-
-      assert.deepEqual(PerformWatcherOnTarget.perform.calls[2].arguments[0], {
-        name: 'second',
-        watcher: 'do second watcher',
-        target: 'target1',
-        emittedData: { my: 'good', data: 'set' }
-      });
-
-      assert.deepEqual(PerformWatcherOnTarget.perform.calls[3].arguments[0], {
-        name: 'second',
-        watcher: 'do second watcher',
-        target: 'target2',
-        emittedData: { my: 'good', data: 'set' }
-      });
+      assert.deepEqual(PerformWatcher.calls.length, 4);
+      assert.deepEqual(PerformWatcher.calls[0].arguments, [ 'first', 'do first watcher', 'target1', { my: 'good', data: 'set' } ]);
+      assert.deepEqual(PerformWatcher.calls[1].arguments, [ 'first', 'do first watcher', 'target2', { my: 'good', data: 'set' } ]);
+      assert.deepEqual(PerformWatcher.calls[2].arguments, [ 'second', 'do second watcher', 'target1', { my: 'good', data: 'set' } ]);
+      assert.deepEqual(PerformWatcher.calls[3].arguments, [ 'second', 'do second watcher', 'target2', { my: 'good', data: 'set' } ]);
     });
   });
 

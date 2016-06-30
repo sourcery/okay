@@ -5,17 +5,17 @@ var mockFunction = require('./mock-function');
 
 describe('AcquireTargetsForWatcher', function() {
   it('queries the document for elements with data attribute "data-watch-sausage"', function() {
-    var document, result;
+    var document, targets;
 
     document = {
       querySelectorAll: mockFunction([ 'target1', 'target2' ])
     };
 
     AcquireTargetsForWatcher.__set__('document', document);
-    result = AcquireTargetsForWatcher.perform({ name: 'sausage' });
+    targets = AcquireTargetsForWatcher('sausage');
 
     assert.equal(document.querySelectorAll.calls.length, 1);
     assert.equal(document.querySelectorAll.calls[0].arguments[0], '[data-watch-sausage]');
-    assert.deepEqual(result.targets, [ 'target1', 'target2' ]);
+    assert.deepEqual(targets, [ 'target1', 'target2' ]);
   });
 });

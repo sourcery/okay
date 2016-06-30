@@ -5,7 +5,7 @@ var Timer = require('./timer');
 var mergeToHash = require('./merge-to-hash');
 var GetDataFromEvent = require('./get-data-from-event');
 var AcquireTargetsForWatcher = require('./acquire-targets-for-watcher');
-var PerformWatcherOnTarget = require('./perform-watcher-on-target');
+var PerformWatcher = require('./perform-watcher');
 var defaultWatchers = require('./watchers');
 var log = require('./log');
 
@@ -43,22 +43,13 @@ Application.prototype.performWatchers = function(data) {
   watchers = this.watchers;
 
   each(watchers, function (watcher, watcherName) {
-    var result, targets, elapsed;
+    var targets, elapsed;
 
-    result = AcquireTargetsForWatcher.perform({
-      name: watcherName
-    });
-
-    targets = result.targets;
+    targets = AcquireTargetsForWatcher(watcherName);
 
     elapsed = benchmark(function () {
       each(targets, function (target) {
-        PerformWatcherOnTarget.perform({
-          name: watcherName,
-          watcher: watcher,
-          target: target,
-          emittedData: emittedData
-        });
+        PerformWatcher(watcherName, watcher, target, emittedData);
       });
     });
 

@@ -1,26 +1,15 @@
 var each = require('./each');
 var log = require('./log');
 
-function Notifier(name, watcher, target, emittedData) {
-  this.name = name;
-  this.watcher = watcher;
-  this.target = target;
-  this.emittedData = emittedData;
-  this.config = this.getConfig();
-}
-
-Notifier.prototype.getConfig = function() {
+function getConfig(name, target) {
   var rawOptions, parsedOptions;
-  rawOptions = this.target.getAttribute('data-watch-'+this.name);
+  rawOptions = target.getAttribute('data-watch-'+name);
   parsedOptions = JSON.parse(rawOptions);
   return parsedOptions;
 };
 
-Notifier.prototype.update = function() {
-  var emittedData = this.emittedData;
-  var config = this.config;
-  var watcher = this.watcher;
-  var target = this.target;
+module.exports = function PerformWatcher(name, watcher, target, emittedData) {
+  var config = getConfig(name, target);
   if (!config) return;
 
   each(config, function(configValue, configKey) {
@@ -53,5 +42,3 @@ Notifier.prototype.update = function() {
     }
   });
 };
-
-module.exports = Notifier;

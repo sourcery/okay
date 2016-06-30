@@ -1,21 +1,21 @@
-var Notifier = require('../src/notifier');
+var PerformWatcher = require('../src/perform-watcher');
 var assert = require('assert');
 
-describe('Notifier', function() {
+describe('PerformWatcher', function() {
   var watchData;
 
   function fakeHTMLElement() {
     return { getAttribute: function() { return JSON.stringify(watchData); }};
   }
 
-  var assertWatcherSetHidden = function(notifier, bool) {
-    var calls = notifier.watcherCalls();
+  var assertWatcherSetHidden = function(result, bool) {
+    var calls = result.watcherCalls();
     assert.equal(calls.length, 1);
     assert.equal(calls[0].hidden, bool);
   };
 
-  function buildNotifier(name, watchData, emittedData) {
-    var watcherCalls = [];
+  function buildPerformWatcher(name, watchData, emittedData) {
+    var watcher, result, target, watcherCalls = [];
 
     var watcher = function(target, name, value, context) {
       data = {};
@@ -23,11 +23,12 @@ describe('Notifier', function() {
       watcherCalls.push(data);
     };
 
-    var target = fakeHTMLElement();
-    notifier = new Notifier('class', watcher, target, emittedData);
-    notifier.watcherCalled = function() { return watcherCalled; };
-    notifier.watcherCalls = function() { return watcherCalls; };
-    return notifier;
+    target = fakeHTMLElement();
+    PerformWatcher('class', watcher, target, emittedData);
+    result = {};
+    result.watcherCalled = function() { return watcherCalled; };
+    result.watcherCalls = function() { return watcherCalls; };
+    return result;
   }
 
   it('handles basic scenario', function() {
@@ -39,9 +40,8 @@ describe('Notifier', function() {
       "active": true
     };
 
-    var notifier = buildNotifier('class', watchData, emittedData);
-    notifier.update();
-    assertWatcherSetHidden(notifier, true);
+    var result = buildPerformWatcher('class', watchData, emittedData);
+    assertWatcherSetHidden(result, true);
   });
 
   describe('inverting watchers', function() {
@@ -54,9 +54,8 @@ describe('Notifier', function() {
         "active": false
       };
 
-      var notifier = buildNotifier('class', watchData, emittedData);
-      notifier.update();
-      assertWatcherSetHidden(notifier, true);
+      var result = buildPerformWatcher('class', watchData, emittedData);
+      assertWatcherSetHidden(result, true);
     });
   });
 
@@ -74,9 +73,8 @@ describe('Notifier', function() {
         "entree": null
       };
 
-      var notifier = buildNotifier('class', watchData, emittedData);
-      notifier.update();
-      assertWatcherSetHidden(notifier, true);
+      var result = buildPerformWatcher('class', watchData, emittedData);
+      assertWatcherSetHidden(result, true);
     });
 
     it('hides when entree is fries', function() {
@@ -88,9 +86,8 @@ describe('Notifier', function() {
         "entree": null
       };
 
-      var notifier = buildNotifier('class', watchData, emittedData);
-      notifier.update();
-      assertWatcherSetHidden(notifier, true);
+      var result = buildPerformWatcher('class', watchData, emittedData);
+      assertWatcherSetHidden(result, true);
     });
 
     it('shows when entree is burgers', function() {
@@ -102,9 +99,8 @@ describe('Notifier', function() {
         "entree": null
       };
 
-      var notifier = buildNotifier('class', watchData, emittedData);
-      notifier.update();
-      assertWatcherSetHidden(notifier, false);
+      var result = buildPerformWatcher('class', watchData, emittedData);
+      assertWatcherSetHidden(result, false);
     });
 
     it('shows when entree is cheese', function() {
@@ -116,9 +112,8 @@ describe('Notifier', function() {
         "entree": null
       };
 
-      var notifier = buildNotifier('class', watchData, emittedData);
-      notifier.update();
-      assertWatcherSetHidden(notifier, false);
+      var result = buildPerformWatcher('class', watchData, emittedData);
+      assertWatcherSetHidden(result, false);
     });
   });
 });

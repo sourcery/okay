@@ -81,19 +81,13 @@ function perform(hash) {
 exports.perform = perform;
 
 },{"./context":2}],4:[function(require,module,exports){
-var perform = require('node-interactor');
 var slice = require('./slice');
-var each = require('./each');
-function AcquireTargetsForWatcher() {}
-module.exports = AcquireTargetsForWatcher;
-AcquireTargetsForWatcher.perform = perform;
 
-AcquireTargetsForWatcher.prototype.perform = function() {
-  var name = this.context.name;
-  this.context.targets = slice(document.querySelectorAll('[data-watch-'+name+']'));
+module.exports = function AcquireTargetsForWatcher(name) {
+  return slice(document.querySelectorAll('[data-watch-'+name+']'));
 };
 
-},{"./each":11,"./slice":18,"node-interactor":1}],5:[function(require,module,exports){
+},{"./slice":17}],5:[function(require,module,exports){
 var each = require('./each');
 var count = require('./count');
 var benchmark = require('./benchmark');
@@ -101,7 +95,7 @@ var Timer = require('./timer');
 var mergeToHash = require('./merge-to-hash');
 var GetDataFromEvent = require('./get-data-from-event');
 var AcquireTargetsForWatcher = require('./acquire-targets-for-watcher');
-var PerformWatcherOnTarget = require('./perform-watcher-on-target');
+var PerformWatcher = require('./perform-watcher');
 var defaultWatchers = require('./watchers');
 var log = require('./log');
 
@@ -139,22 +133,13 @@ Application.prototype.performWatchers = function(data) {
   watchers = this.watchers;
 
   each(watchers, function (watcher, watcherName) {
-    var result, targets, elapsed;
+    var targets, elapsed;
 
-    result = AcquireTargetsForWatcher.perform({
-      name: watcherName
-    });
-
-    targets = result.targets;
+    targets = AcquireTargetsForWatcher(watcherName);
 
     elapsed = benchmark(function () {
       each(targets, function (target) {
-        PerformWatcherOnTarget.perform({
-          name: watcherName,
-          watcher: watcher,
-          target: target,
-          emittedData: emittedData
-        });
+        PerformWatcher(watcherName, watcher, target, emittedData);
       });
     });
 
@@ -176,7 +161,7 @@ Application.prototype.setAdapter = function(adapter) {
 
 module.exports = Application;
 
-},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./count":9,"./each":11,"./get-data-from-event":12,"./log":13,"./merge-to-hash":14,"./perform-watcher-on-target":17,"./timer":19,"./watchers":21}],6:[function(require,module,exports){
+},{"./acquire-targets-for-watcher":4,"./benchmark":8,"./count":9,"./each":11,"./get-data-from-event":12,"./log":13,"./merge-to-hash":14,"./perform-watcher":16,"./timer":18,"./watchers":20}],6:[function(require,module,exports){
 var each = require('./each');
 var transforms = require('./transforms');
 var perform = require('node-interactor');
@@ -204,7 +189,7 @@ ApplyTransforms.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./each":11,"./transforms":20,"node-interactor":1}],7:[function(require,module,exports){
+},{"./each":11,"./transforms":19,"node-interactor":1}],7:[function(require,module,exports){
 Base = {};
 Base.watchers = {};
 
@@ -337,7 +322,7 @@ GetDataFromEvent.prototype.perform = function() {
   this.context.data = data;
 };
 
-},{"./apply-transforms":6,"./each":11,"./log":13,"./slice":18,"node-interactor":1}],13:[function(require,module,exports){
+},{"./apply-transforms":6,"./each":11,"./log":13,"./slice":17,"node-interactor":1}],13:[function(require,module,exports){
 var log = [];
 log.byType = {};
 
@@ -401,29 +386,35 @@ function mergeToHash(items) {
 
 module.exports = mergeToHash;
 },{"./each":11}],15:[function(require,module,exports){
+(function() {
+  'use strict';
+  var Okay, Application, adapter, watchers;
+
+  window.Okay = Okay = {};
+  if (!Okay) Okay = {};
+  Okay.log = require('./log');
+
+  Application = require('./application');
+  adapter = require('./base');
+  watchers = require('./watchers');
+
+  Okay.application = new Application(adapter);
+  Okay.application.timer.start();
+}());
+
+},{"./application":5,"./base":7,"./log":13,"./watchers":20}],16:[function(require,module,exports){
 var each = require('./each');
 var log = require('./log');
 
-function Notifier(name, watcher, target, emittedData) {
-  this.name = name;
-  this.watcher = watcher;
-  this.target = target;
-  this.emittedData = emittedData;
-  this.config = this.getConfig();
-}
-
-Notifier.prototype.getConfig = function() {
+function getConfig(name, target) {
   var rawOptions, parsedOptions;
-  rawOptions = this.target.getAttribute('data-watch-'+this.name);
+  rawOptions = target.getAttribute('data-watch-'+name);
   parsedOptions = JSON.parse(rawOptions);
   return parsedOptions;
 };
 
-Notifier.prototype.update = function() {
-  var emittedData = this.emittedData;
-  var config = this.config;
-  var watcher = this.watcher;
-  var target = this.target;
+module.exports = function PerformWatcher(name, watcher, target, emittedData) {
+  var config = getConfig(name, target);
   if (!config) return;
 
   each(config, function(configValue, configKey) {
@@ -457,50 +448,14 @@ Notifier.prototype.update = function() {
   });
 };
 
-module.exports = Notifier;
-},{"./each":11,"./log":13}],16:[function(require,module,exports){
-(function() {
-  'use strict';
-  var Okay, Application, adapter, watchers;
-
-  window.Okay = Okay = {};
-  if (!Okay) Okay = {};
-  Okay.log = require('./log');
-
-  Application = require('./application');
-  adapter = require('./base');
-  watchers = require('./watchers');
-
-  Okay.application = new Application(adapter);
-  Okay.application.timer.start();
-}());
-
-},{"./application":5,"./base":7,"./log":13,"./watchers":21}],17:[function(require,module,exports){
-var perform = require('node-interactor');
-var slice = require('./slice');
-var each = require('./each');
-var Notifier = require('./notifier');
-function PerformWatcherOnTarget() {}
-module.exports = PerformWatcherOnTarget;
-PerformWatcherOnTarget.perform = perform;
-
-PerformWatcherOnTarget.prototype.perform = function() {
-  var name = this.context.name;
-  var watcher = this.context.watcher;
-  var target = this.context.target;
-  var emittedData = this.context.emittedData;
-  var notifier = new Notifier(name, watcher, target, emittedData);
-  notifier.update();
-};
-
-},{"./each":11,"./notifier":15,"./slice":18,"node-interactor":1}],18:[function(require,module,exports){
+},{"./each":11,"./log":13}],17:[function(require,module,exports){
 var arrayPrototypeSlice = Array.prototype.slice;
 
 module.exports = function slice(object) {
   return arrayPrototypeSlice.apply(object);
 };
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var each = require('./each');
 var slice = require('./slice');
 
@@ -541,7 +496,7 @@ Timer.prototype.clear = function() {
 
 module.exports = Timer;
 
-},{"./each":11,"./slice":18}],20:[function(require,module,exports){
+},{"./each":11,"./slice":17}],19:[function(require,module,exports){
 var transforms = {};
 
 transforms['\\\[checked\\\]'] = function(target) {
@@ -580,7 +535,7 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
 };
 
 module.exports = transforms;
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var dispatchDOMEvent = require('./dispatch-dom-event');
 
 exports.html = function applyHTML(target, setting, value, config) {
@@ -620,4 +575,4 @@ exports.submit = function submitForm(target, attrName, value) {
   if (!cancelled) target.submit();
 };
 
-},{"./dispatch-dom-event":10}]},{},[16]);
+},{"./dispatch-dom-event":10}]},{},[15]);
