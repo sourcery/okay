@@ -42,9 +42,9 @@ exports.attr = function applyAttr(target, attrName, value) {
 
   $target = $(target);
   if (attrName == 'value') previousValue = $target.val();
+  else $target.removeProp(attrName);
 
-  $target.removeProp(attrName);
-  if (value) $(target).prop(attrName, value);
+  if (value !== undefined && value !== false) $(target).prop(attrName, value);
 
   function triggerChangeEvent() {
     setTimeout(function () { $target.trigger('change'); });

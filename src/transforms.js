@@ -9,11 +9,13 @@ transforms['!\\\[checked\\\]'] = function(target) {
 };
 
 transforms['{value}'] = function(target, contextKey, context, template) {
-  return template.replace(new RegExp('{value}', 'g'), target.value);
+  if (target.value !== undefined) return template.replace(new RegExp('{value}', 'g'), target.value);
+  else return ''
 };
 
 transforms['\\\[value\\\]'] = function(target, contextKey, context, template) {
-  return target.value;
+  if (target.value !== undefined) return target.value;
+  else return '';
 };
 
 transforms['\\\[options\\\]'] = function(target, contextKey, context) {
