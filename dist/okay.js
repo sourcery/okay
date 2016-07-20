@@ -522,11 +522,11 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
   var options = target.children;
 
   function updateContextForOption(option) {
-    var selected, name;
+    var selected, value;
     selected = option.selected == true;
-    name = option.getAttribute('name');
-    context[contextKey+'['+name+']'] = selected;
-    if (selected) selectedOptionValue = name;
+    value = option.getAttribute('value');
+    context[contextKey+'['+value+']'] = selected;
+    if (selected) selectedOptionValue = value;
   }
 
   for (var i = 0, ii = options.length; i < ii; i++) {

@@ -10,9 +10,9 @@
       <label for="entree">Entree</label>
       <select data-emit='{"entree":"[options]"}' id="entree">
         <option>-- Choose --</option>
-        <option name="burger">Hamburger</option>
-        <option name="cheese">Grilled Cheese</option>
-        <option name="fries">Fries Only</option>
+        <option value="burger">Hamburger</option>
+        <option value="cheese">Grilled Cheese</option>
+        <option value="fries">Fries Only</option>
       </select>
 
       <div class='hidden' data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
