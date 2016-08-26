@@ -293,7 +293,7 @@ function determineTarget(e) {
     var dataset, eventFilter;
     if (!target && eachTarget && (dataset = eachTarget.dataset) && dataset.emit) {
       if (dataset.emitEvent) eventFilter = JSON.parse(dataset.emitEvent);
-      if ((!eventFilter && (eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
+      if ((!eventFilter && (eventType === 'okay' || eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
         target = eachTarget;
       }
     }
@@ -526,7 +526,17 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
     selected = option.selected == true;
     value = option.getAttribute('value');
     context[contextKey+'['+value+']'] = selected;
-    if (selected) selectedOptionValue = value;
+
+    if (selected) {
+      selectedOptionValue = value;
+
+      setTimeout(function() {
+        Okay.application.processEvent({
+          target: option,
+          type: 'okay'
+        })
+      });
+    }
   }
 
   for (var i = 0, ii = options.length; i < ii; i++) {

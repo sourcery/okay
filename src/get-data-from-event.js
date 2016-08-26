@@ -22,7 +22,7 @@ function determineTarget(e) {
     var dataset, eventFilter;
     if (!target && eachTarget && (dataset = eachTarget.dataset) && dataset.emit) {
       if (dataset.emitEvent) eventFilter = JSON.parse(dataset.emitEvent);
-      if ((!eventFilter && (eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
+      if ((!eventFilter && (eventType === 'okay' || eventType === 'change' || eventType === 'click')) || (eventFilter && eventFilter.type === eventType)) {
         target = eachTarget;
       }
     }

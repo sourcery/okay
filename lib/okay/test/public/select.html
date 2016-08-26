@@ -10,12 +10,13 @@
       <label for="entree">Entree</label>
       <select data-emit='{"entree":"[options]"}' id="entree">
         <option>-- Choose --</option>
-        <option value="burger">Hamburger</option>
-        <option value="cheese">Grilled Cheese</option>
+        <option value="burger" data-emit='{"description":"Our burgers made with 1/3 lb organic Kobé ground-chuck local beef (grass-fed)."}'>Hamburger</option>
+        <option value="cheese" data-emit='{"description":"Made with 4 all-organic cheeses on locally-sourced 3\"-by-1cm sourdough slices."}'>Grilled Cheese</option>
         <option value="fries">Fries Only</option>
       </select>
 
       <div class='hidden' data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
+        <p data-watch-html='{"description":""}'></p>
         <input type="checkbox" name="fries" id="fries" data-watch-attr='{"entree[fries],entree[null]": "disabled"}' disabled='disabled'/>
         <label for="fries">Would you like fries with that?</label>
       </div>

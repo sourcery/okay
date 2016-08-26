@@ -184,11 +184,12 @@
   &lt;label for=&quot;entree&quot;&gt;Entree&lt;/label&gt;
   &lt;select data-emit=&#39;{&quot;entree&quot;:&quot;[options]&quot;}&#39; id=&quot;entree&quot;&gt;
     &lt;option&gt;-- Choose --&lt;/option&gt;
-    &lt;option value=&quot;burger&quot;&gt;Hamburger&lt;/option&gt;
-    &lt;option value=&quot;cheese&quot;&gt;Grilled Cheese&lt;/option&gt;
+    &lt;option value=&quot;burger&quot; data-emit=&#39;{&quot;description&quot;:&quot;Our burgers made with 1/3 lb organic Kobé ground-chuck local beef (grass-fed).&quot;}&#39;&gt;Hamburger&lt;/option&gt;
+    &lt;option value=&quot;cheese&quot; data-emit=&#39;{&quot;description&quot;:&quot;Made with 4 all-organic cheeses on locally-sourced 3\&quot;-by-1cm sourdough slices.&quot;}&#39;&gt;Grilled Cheese&lt;/option&gt;
     &lt;option value=&quot;fries&quot;&gt;Fries Only&lt;/option&gt;
   &lt;/select&gt;
    &lt;div class=&quot;hidden&quot; data-watch-class=&#39;{&quot;entree[fries],entree[null]&quot;: &quot;hidden&quot;}&#39;&gt;
+    &lt;p data-watch-html=&#39;{&quot;description&quot;:&quot;&quot;}&#39;&gt;&lt;/p&gt;
     &lt;input type=&quot;checkbox&quot; name=&quot;fries&quot; id=&quot;fries&quot; data-watch-attr=&#39;{&quot;entree[fries],entree[null]&quot;: &quot;disabled&quot;}&#39; disabled&gt;
     &lt;label for=&quot;fries&quot;&gt;Would you like fries with that?&lt;/label&gt;
   &lt;/div&gt;
@@ -200,11 +201,12 @@
   <label for="entree">Entree</label>
   <select data-emit='{"entree":"[options]"}' id="entree">
     <option>-- Choose --</option>
-    <option value="burger">Hamburger</option>
-    <option value="cheese">Grilled Cheese</option>
+    <option value="burger" data-emit='{"description":"Our burgers made with 1/3 lb organic Kobé ground-chuck local beef (grass-fed)."}'>Hamburger</option>
+    <option value="cheese" data-emit='{"description":"Made with 4 all-organic cheeses on locally-sourced 3\"-by-1cm sourdough slices."}'>Grilled Cheese</option>
     <option value="fries">Fries Only</option>
   </select>
    <div class="hidden" data-watch-class='{"entree[fries],entree[null]": "hidden"}'>
+    <p data-watch-html='{"description":""}'></p>
     <input type="checkbox" name="fries" id="fries" data-watch-attr='{"entree[fries],entree[null]": "disabled"}' disabled>
     <label for="fries">Would you like fries with that?</label>
   </div>

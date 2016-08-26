@@ -27,7 +27,17 @@ transforms['\\\[options\\\]'] = function(target, contextKey, context) {
     selected = option.selected == true;
     value = option.getAttribute('value');
     context[contextKey+'['+value+']'] = selected;
-    if (selected) selectedOptionValue = value;
+
+    if (selected) {
+      selectedOptionValue = value;
+
+      setTimeout(function() {
+        Okay.application.processEvent({
+          target: option,
+          type: 'okay'
+        })
+      });
+    }
   }
 
   for (var i = 0, ii = options.length; i < ii; i++) {
