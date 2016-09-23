@@ -344,10 +344,20 @@ log.logEvent = function(e, data) {
 };
 
 log.target = function(target) {
+  var textContent, textContentLength, concatenatedContent;
+  textContent = target.textContent;
+  textContentLength = textContent.length;
+
+  if (textContentLength > 1000) {
+    concatenatedContent = [ textContent.substr(0, 500), textContent.substr(textContentLength - 500) ].join('...')
+  } else {
+    concatenatedContent = textContent;
+  }
+
   return {
     tag: target.tagName,
     id: target.id,
-    text: target.textContent
+    text: concatenatedContent
   }
 };
 

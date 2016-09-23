@@ -5,7 +5,7 @@ describe('PerformWatcher', function() {
   var watchData;
 
   function fakeHTMLElement() {
-    return { getAttribute: function() { return JSON.stringify(watchData); }};
+    return { textContent: "element text content", getAttribute: function() { return JSON.stringify(watchData); }};
   }
 
   var assertWatcherSetHidden = function(result, bool) {
